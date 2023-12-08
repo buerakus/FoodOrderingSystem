@@ -1,63 +1,106 @@
 import java.util.Scanner;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.io.IOException;
+import java.io.FileReader;
 
-class Main {
-    public static void main(String[] args) {
-        Scanner Sc = new Scanner(System.in);
-        int menu = 1;
-        //while loop will continue until quit options is chosen
 
-        while(menu == 1){
-            System.out.println("Welcome to Madraimov Food Ordering System! Please enter option : ");
-            System.out.println("1. Login\n2. Register3\n3. Quit");
+    public class Main {
 
-            switch (Sc.nextInt()){
-                case 1:
-                    login();
-                    break;
-                case 2:
-                    //register()
-                    break;
-                case 3:
-                    menu++;
-                    break;
-            }
-        }
-    }
-    private static void login() {
-        Scanner sc = new Scanner(System.in);
+        private static final String CREDENTIALS_FILE = "accounts.txt";
+        private static final Scanner scanner = new Scanner(System.in);
 
-        System.out.println("Enter your username: ");
-        String username = sc.next();
-        System.out.println("Enter your password: ");
-        String password = sc.next();
+        public static void main(String[] args) {
+            while (true) {
+                System.out.println("Welcome to the Account System");
+                System.out.print("Enter username: ");
+                String enteredUsername = scanner.nextLine();
 
-        try {
-            Scanner fileScanner = new Scanner(new File("C:\\Users\\lorde\\IdeaProjects\\OODJAssignment\\src\\accounts.txt"));
-            boolean found = false;
+                System.out.print("Enter password: ");
+                String enteredPassword = scanner.nextLine();
 
-            while (fileScanner.hasNextLine()) {
-                String line = fileScanner.nextLine();
-                String[] parts = line.split(",");
+                if ("admin".equals(enteredUsername) && "admin".equals(enteredPassword)) {
+                    adminMenu();
+                } else {
+                    String role = userLogin(enteredUsername, enteredPassword);
+                    if (role != "customer") {
+                        System.out.println("Logged in as customer");
+                        //CustomerMenu()
+                    }
+                    else if (role == "vendor") {
+                        System.out.println("Logged is as vendor");
+                        //VendorMenu()
+                    }
+                    else if (role == "delivery runner") {
+                        System.out.println("Logged in as delivery runner");
+                        //DeliveryMenu()
+                    }
+                    else  {
+                        System.out.println("Invalid credentials. Please try again.");
+                    }
 
-                if (parts.length == 2 && parts[0].equals(username) && parts[1].equals(password)) {
-                    System.out.println("Login successful!");
-                    found = true;
-                    break;
                 }
             }
+        }
 
-            if (!found) {
-                System.out.println("Invalid username or password. Please try again.");
+        private static void adminMenu() {
+            System.out.println("Admin Menu:");
+            System.out.println("1. Create Customer");
+            System.out.println("2. Create Vendor");
+            System.out.println("3. Create Delivery");
+            System.out.print("Choose an option: ");
+            String choice = scanner.nextLine();
+
+            switch (choice) {
+                case "1":
+                    registerUser("customer");
+                    break;
+                case "2":
+                    registerUser("vendor");
+                    break;
+                case "3":
+                    registerUser("delivery");
+                    break;
+                default:
+                    System.out.println("Invalid choice.");
+            }
+        }
+
+        private static void registerUser(String role) {
+            System.out.print("Enter username for " + role + ": ");
+            String username = scanner.nextLine();
+            System.out.print("Enter password for " + role + ": ");
+            String password = scanner.nextLine();
+
+            try (FileWriter fw = new FileWriter(CREDENTIALS_FILE, true);
+                 BufferedWriter bw = new BufferedWriter(fw);
+                 PrintWriter out = new PrintWriter(bw)) {
+                out.println(role + "," + username + "," + password);
+            } catch (IOException e) {
+                System.out.println("An error occurred while writing to the file.");
             }
 
-            fileScanner.close();
-        } catch (FileNotFoundException e) {
-            System.out.println("Error: accounts.txt not found.");
+            System.out.println(role + " user registered successfully.");
         }
-    }
 
+        private static String userLogin(String username, String password) {
+            try (BufferedReader br = new BufferedReader(new FileReader(CREDENTIALS_FILE))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    String[] credentials = line.split(",");
+                    if (credentials[1].equals(username) && credentials[2].equals(password)) {
+                        return credentials[0]; // Возвращаем роль
+                    }
+                }
+            } catch (IOException e) {
+                System.out.println("An error occurred while reading the file.");
+            }
+            return null;
+        }
 }
 
 //private static void login(){}
