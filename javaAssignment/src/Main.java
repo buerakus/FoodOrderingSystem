@@ -26,15 +26,15 @@ public class Main {
             }
             else if ("customer".equals(role)) {
                 System.out.println("Logged in as customer");
-                //CustomerMenu()
+                Customer.Menu();
             }
             else if ("vendor".equals(role)) {
                 System.out.println("Logged is as vendor");
-                //VendorMenu()
+                Vendor.vendorMenu();
             }
             else if ("delivery".equals(role)) {
                 System.out.println("Logged in as delivery runner");
-                //DeliveryMenu()
+                DeliveryRunner.main();
             }
             else  {
                 System.out.println("Invalid credentials. Please try again.");
