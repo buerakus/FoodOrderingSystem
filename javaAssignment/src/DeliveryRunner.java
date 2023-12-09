@@ -6,7 +6,9 @@ import java.io.IOException;
 import java.io.FileWriter;
 import java.io.BufferedWriter;
 import java.util.Scanner;
-
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 
 public class DeliveryRunner {
@@ -456,7 +458,7 @@ public class DeliveryRunner {
 
                 // Печать данных каждой строки в таблице, если статус "доставлен"
                 if (columns[4].trim().equals("доставлен")) {
-                    System.out.printf("| %-10s | %-15s | %-6s | %-12s | RM%-11s | %-20s |\n",
+                    System.out.printf("| %-10s | %-20s | %-6s | %-12s | RM%-11s | %-20s |\n",
                             rowNum, columns[0], columns[1], columns[2], columns[3], columns[4]);
                 }
 
@@ -477,7 +479,154 @@ public class DeliveryRunner {
     }
 
     private static void incomeMonitoringPanel() {
-        // Логика панели мониторинга доходов
-        // Можно выводить информацию о доходах и статистику работы курьера
+        Scanner scanner = new Scanner(System.in);
+
+        while (true) {
+            System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+            System.out.println("Выберите действие:");
+            System.out.println("1. Анализ доходов");
+            System.out.println("2. Подсчет прибыли");
+            System.out.println("3. Статистика выполненных заказов");
+            System.out.println("0. Выход");
+            System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+
+            int choice = scanner.nextInt();
+
+            switch (choice) {
+                case 1:
+                    incomeAnalysis();
+                    break;
+                case 2:
+                    profitCalculations();
+                    break;
+                case 3:
+                    completedOrdersStat();
+                    break;
+                case 0:
+                    System.out.println("Выход из программы.");
+                    return;
+                default:
+                    System.out.println("Некорректный выбор. Попробуйте снова.");
+            }
+        }
     }
+    private static void  incomeAnalysis() {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Введите дату начала периода (MM/dd/yyyy):");
+        String startDateString = scanner.nextLine();
+        Date startDate = parseDate(startDateString);
+
+        System.out.println("Введите дату конца периода (MM/dd/yyyy):");
+        String endDateString = scanner.nextLine();
+        Date endDate = parseDate(endDateString);
+
+        if (startDate != null && endDate != null) {
+            analyzeIncomeForPeriod(startDate, endDate);
+        } else {
+            System.out.println("Некорректный формат даты. Повторите ввод.");
+        }
+    }
+    private static void analyzeIncomeForPeriod(Date startDate, Date endDate) {
+        try {
+            File courierTasksFile = new File(COURIER_TASKS_FILE_PATH);
+            Scanner fileScanner = new Scanner(courierTasksFile);
+
+            double totalIncome = 0;
+
+            while (fileScanner.hasNextLine()) {
+                String line = fileScanner.nextLine();
+                String[] columns = line.split(", ");
+
+                String dateString = columns[2]; // дата заказа - третий столбец
+                Date orderDate = parseDate(dateString);
+
+                if (orderDate != null && isDateWithinRange(orderDate, startDate, endDate)) {
+                    double price = Double.parseDouble(columns[3]); //цена - четвертый столбец
+                    totalIncome += price;
+                }
+            }
+
+            fileScanner.close();
+            System.out.println("----------------------------------------------------------------------------------------------------------");
+            System.out.println("Общая прибыль за выбранный период времени: RM" + totalIncome);
+            System.out.println("----------------------------------------------------------------------------------------------------------");
+        } catch (FileNotFoundException e) {
+            System.out.println("Файл задач не найден.");
+        }
+    }
+
+    private static Date parseDate(String dateString) {
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+            return dateFormat.parse(dateString);
+        } catch (ParseException e) {
+            System.out.println("Ошибка парсинга даты: " + e.getMessage());
+        }
+        return null;
+    }
+    private static boolean isDateWithinRange(Date dateToCheck, Date startDate, Date endDate) {
+        return dateToCheck.compareTo(startDate) >= 0 && dateToCheck.compareTo(endDate) <= 0;
+    }
+
+
+
+
+    private static void profitCalculations() {
+        try {
+            File courierTasksFile = new File(COURIER_TASKS_FILE_PATH);
+            Scanner fileScanner = new Scanner(courierTasksFile);
+
+            double totalProfit = 0;
+
+            while (fileScanner.hasNextLine()) {
+                String line = fileScanner.nextLine();
+                String[] columns = line.split(", ");
+
+                if (columns.length >= 5 && columns[4].trim().equals("доставлен")) {
+                    double deliveryPrice = Double.parseDouble(columns[3]); // Предполагаем, что цена - четвертый столбец
+                    totalProfit += deliveryPrice;
+                }
+            }
+
+            fileScanner.close();
+            System.out.println("----------------------------------------------------------------------------------------------------------");
+            System.out.println("Общая прибыль от доставок: RM" + totalProfit);
+            System.out.println("----------------------------------------------------------------------------------------------------------");
+        } catch (FileNotFoundException e) {
+            System.out.println("Файл задач курьера не найден.");
+        }
+    }
+
+
+
+    private static void completedOrdersStat() {
+        try {
+            File courierTasksFile = new File(COURIER_TASKS_FILE_PATH);
+            Scanner fileScanner = new Scanner(courierTasksFile);
+
+            int completedOrdersCount = 0;
+
+            while (fileScanner.hasNextLine()) {
+                String line = fileScanner.nextLine();
+                String[] columns = line.split(", ");
+
+                if (columns.length >= 5 && columns[4].trim().equals("доставлен")) {
+                    completedOrdersCount++;
+                }
+            }
+
+            fileScanner.close();
+
+            System.out.println("Количество выполненных заказов: " + completedOrdersCount);
+
+
+        } catch (FileNotFoundException e) {
+            System.out.println("Файл задач курьера не найден.");
+        }
+    }
+
+
+
+
 }
