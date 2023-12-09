@@ -84,7 +84,7 @@ public class Admin {
     // ACCOUNT CREATING --------------------------------------------------------------------------
 
     public static void createCustomerAccount(Scanner scanner) {
-        System.out.println("Name,Login,password,WalletID");
+        System.out.println("Name,Login,password,CustomerID");
         scanner.nextLine();
         String customerData = scanner.nextLine();
         appendCustomerDataToFile(CUSTOMERS_FILE_PATH, customerData);
