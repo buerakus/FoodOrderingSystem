@@ -136,7 +136,7 @@ public class DeliveryRunner {
                 String[] columns = line.split(", ");
 
                 // Печать данных каждой строки в таблице, если статус "в ожидании принятия" или "отменен"
-                if (columns[4].equals("в ожидании принятия") || columns[4].equals("отменен")) {
+                if (columns[4].equals("в ожидании принятия") || columns[4].equals("отклонен")) {
                     System.out.printf("| %-10s | %-15s | %-6s | %-12s | $%-11s | %-20s |\n",
                             rowNum, columns[0], columns[1], columns[2], columns[3], columns[4]);
                 }
@@ -224,51 +224,103 @@ public class DeliveryRunner {
             File courierTasksFile = new File(COURIER_TASKS_FILE_PATH);
             Scanner fileScanner = new Scanner(courierTasksFile);
 
-            ArrayList<String> courierTasks = new ArrayList<>();
+            int rowNum = 1; // Порядковый номер начинается с 1
 
+            // Печать заголовка таблицы
+            System.out.println("----------------------------------------------------------------------------------------------------------");
+            System.out.printf("| %-10s | %-15s | %-6s | %-12s | %-12s | %-20s |\n", "№", "Позиция", "ID", "Дата заказа", "Цена", "Статус");
+            System.out.println("----------------------------------------------------------------------------------------------------------");
+
+            // Чтение и печать данных из файла CourierTasks.txt в виде таблицы
             while (fileScanner.hasNextLine()) {
-                String task = fileScanner.nextLine();
-                courierTasks.add(task);
+                String line = fileScanner.nextLine();
+                String[] columns = line.split(", ");
+
+                // Печать данных каждой строки в таблице, если статус "принят"
+                if (columns[4].trim().equals("принят")) {
+                    System.out.printf("| %-10s | %-15s | %-6s | %-12s | $%-11s | %-20s |\n",
+                            rowNum, columns[0], columns[1], columns[2], columns[3], columns[4]);
+                }
+
+                rowNum++;
             }
+
+            System.out.println("----------------------------------------------------------------------------------------------------------");
             fileScanner.close();
 
-            int taskNumber = 1;
-            for (String task : courierTasks) {
-                System.out.println(taskNumber + ". " + task);
-                taskNumber++;
-            }
-
+            // Выбор курьера
             Scanner scanner = new Scanner(System.in);
-            System.out.println("Введите номер заказа для отклонения: ");
+            System.out.println("Введите номер заказа для отклонения или 0 для выхода: ");
             int chosenTaskNumber = scanner.nextInt();
-            scanner.nextLine();
 
-            if (chosenTaskNumber >= 1 && chosenTaskNumber <= courierTasks.size()) {
-                String removedTask = courierTasks.remove(chosenTaskNumber - 1);
-
-                FileWriter courierFileWriter = new FileWriter(COURIER_TASKS_FILE_PATH);
-                BufferedWriter bufferedWriter = new BufferedWriter(courierFileWriter);
-
-                for (String task : courierTasks) {
-                    bufferedWriter.write(task + "\n");
-                }
-                bufferedWriter.close();
-
-                FileWriter taskFileWriter = new FileWriter(TASK_FILE_PATH, true);
-                BufferedWriter taskBufferedWriter = new BufferedWriter(taskFileWriter);
-                taskBufferedWriter.write(removedTask + "\n");
-                taskBufferedWriter.close();
-
-                System.out.println("Заказ отклонен и возвращен в файл задач.");
+            if (chosenTaskNumber > 0 && chosenTaskNumber < rowNum) {
+                // Удаление выбранной задачи из файлов
+                updateCourierTasksFile(courierTasksFile, chosenTaskNumber);
+                updateTaskFile(chosenTaskNumber);
+                System.out.println("Заказ отклонен.");
             } else {
-                System.out.println("Некорректный номер заказа.");
+                System.out.println("Выбран некорректный номер заказа.");
             }
+
         } catch (FileNotFoundException e) {
-            System.out.println("Файл заказов курьера не найден.");
+            System.out.println("Файл задач курьера не найден.");
         } catch (IOException e) {
-            System.out.println("Ошибка при отклонении заказа или возврате в файл задач.");
+            System.out.println("Ошибка при отклонении заказа или обновлении файлов.");
         }
     }
+
+    private static void updateCourierTasksFile(File courierTasksFile, int chosenTaskNumber) throws IOException {
+        Scanner fileScanner = new Scanner(courierTasksFile);
+        StringBuilder newCourierTasksData = new StringBuilder();
+
+        int currentTask = 1;
+        while (fileScanner.hasNextLine()) {
+            String line = fileScanner.nextLine();
+            if (currentTask != chosenTaskNumber) {
+                newCourierTasksData.append(line).append("\n");
+            }
+
+            currentTask++;
+        }
+
+        fileScanner.close();
+
+        // Запись обновленных данных в файл CourierTasks.txt
+        FileWriter courierFileWriter = new FileWriter(COURIER_TASKS_FILE_PATH);
+        BufferedWriter bufferedWriter = new BufferedWriter(courierFileWriter);
+        bufferedWriter.write(newCourierTasksData.toString());
+        bufferedWriter.close();
+    }
+
+    private static void updateTaskFile(int chosenTaskNumber) throws IOException {
+        File taskFile = new File(TASK_FILE_PATH);
+        Scanner fileScanner = new Scanner(taskFile);
+        StringBuilder newTaskData = new StringBuilder();
+
+        int currentTask = 1;
+        while (fileScanner.hasNextLine()) {
+            String line = fileScanner.nextLine();
+            if (currentTask != chosenTaskNumber) {
+                newTaskData.append(line).append("\n");
+            } else {
+                // Создание новой строки с статусом "отклонен"
+                String[] columns = line.split(", ");
+                newTaskData.append(columns[0]).append(", ").append(columns[1]).append(", ").append(columns[2])
+                        .append(", ").append(columns[3]).append(", отклонен\n");
+            }
+
+            currentTask++;
+        }
+
+        fileScanner.close();
+
+        // Запись обновленных данных в файл Task.txt
+        FileWriter taskFileWriter = new FileWriter(TASK_FILE_PATH);
+        BufferedWriter taskBufferedWriter = new BufferedWriter(taskFileWriter);
+        taskBufferedWriter.write(newTaskData.toString());
+        taskBufferedWriter.close();
+    }
+
 
 
     private static void updateTaskStatus() {
@@ -307,4 +359,3 @@ public class DeliveryRunner {
         // Можно выводить информацию о доходах и статистику работы курьера
     }
 }
-
