@@ -440,23 +440,36 @@ public class DeliveryRunner {
     private static void viewTaskHistory() {
         try {
             File courierTasksFile = new File(COURIER_TASKS_FILE_PATH);
-            if (!courierTasksFile.exists()) {
-                System.out.println("История задач курьера пуста.");
-                return;
-            }
-
             Scanner fileScanner = new Scanner(courierTasksFile);
 
-            System.out.println("История задач курьера:");
+            int rowNum = 1; // Порядковый номер начинается с 1
+
+            // Печать заголовка таблицы
+            System.out.println("----------------------------------------------------------------------------------------------------------");
+            System.out.printf("| %-10s | %-15s | %-6s | %-12s | %-12s | %-20s |\n", "№", "Позиция", "ID", "Дата заказа", "Цена", "Статус");
+            System.out.println("----------------------------------------------------------------------------------------------------------");
+
+            // Чтение и печать данных из файла CourierTasks.txt в виде таблицы
             while (fileScanner.hasNextLine()) {
-                String task = fileScanner.nextLine();
-                System.out.println(task);
+                String line = fileScanner.nextLine();
+                String[] columns = line.split(", ");
+
+                // Печать данных каждой строки в таблице, если статус "доставлен"
+                if (columns[4].trim().equals("доставлен")) {
+                    System.out.printf("| %-10s | %-15s | %-6s | %-12s | RM%-11s | %-20s |\n",
+                            rowNum, columns[0], columns[1], columns[2], columns[3], columns[4]);
+                }
+
+                rowNum++;
             }
+
+            System.out.println("----------------------------------------------------------------------------------------------------------");
             fileScanner.close();
         } catch (FileNotFoundException e) {
-            System.out.println("Файл истории задач курьера не найден.");
+            System.out.println("Файл задач курьера не найден.");
         }
     }
+
 
     private static void readClientReview() {
         // Логика чтения отзыва клиента
