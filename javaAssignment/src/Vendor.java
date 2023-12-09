@@ -7,7 +7,7 @@ import java.util.List;
 
 public class Vendor {
 
-    private static final String TASK_FILE_PATH = "orders.txt";
+    private static final String TASK_FILE_PATH = "C:\\Users\\lorde\\IdeaProjects\\OODJAssignment\\src\\orders.txt";
     private static final Scanner scanner = new Scanner(System.in);
 
     public static void vendorMenu() {
@@ -19,8 +19,8 @@ public class Vendor {
             System.out.println("3. update item");
             System.out.println("4. delete item");
             System.out.println("5. accept/cancel order");
-            System.out.println("6. update order status"); 
-            System.out.println("6. check order history "); 
+            System.out.println("6. update order status");
+            System.out.println("6. check order history ");
             System.out.println("7. read customer review");
             System.out.println("8. revenue dashboard");
             System.out.println("0. Exit.");
@@ -66,7 +66,11 @@ public class Vendor {
         try (FileWriter fw = new FileWriter(TASK_FILE_PATH, true)) {
             System.out.println("Enter item details:");
             String itemDetails = scanner.nextLine();
-            fw.write(itemDetails + System.lineSeparator());
+            System.out.println("Enter item ID");
+            String itemID = scanner.nextLine();
+            System.out.println("Enter item price");
+            String itemPrice = scanner.nextLine();
+            fw.write(itemID + "," + itemDetails + "," + itemPrice + System.lineSeparator());
             System.out.println("Item created successfully.");
         } catch (IOException e) {
             System.out.println("An error occurred while writing to the file.");
@@ -84,20 +88,27 @@ public class Vendor {
             e.printStackTrace();
         }
     }
-    
-     private static void updateItems() {
+
+    private static void updateItems() {
         System.out.println("Enter the item detail to update:");
-        String oldItem = scanner.nextLine(); 
+        String oldItem = scanner.nextLine();
+
+        // Prompt user for new item details
         System.out.println("Enter new item details:");
-        String newItem = scanner.nextLine();
-        
+        String newItemDetails = scanner.nextLine();
+
+        System.out.println("Enter item ID");
+        String itemID = scanner.nextLine();
+        System.out.println("Enter item price");
+        String itemPrice = scanner.nextLine();
+
         // Read the current items
-        List<String> items = new ArrayList<String>();
+        List<String> items = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(TASK_FILE_PATH))) {
             String line;
             while ((line = br.readLine()) != null) {
-                if (line.equals(oldItem)) {
-                    items.add(newItem);
+                if (line.contains(oldItem)) {
+                    items.add(itemID + "," + newItemDetails + "," + itemPrice);
                 } else {
                     items.add(line);
                 }
@@ -149,22 +160,22 @@ public class Vendor {
         }
     }
 
-    
+
     private static void acceptCancelOrder() {
-        
+
     }
     private static void updateOrder() {
-        
+
     }
     private static void readCReview() {
-        
+
     }
     private static void revenueDash() {
-        
+
     }
-  
+
     public static void main(String[] args) {
-    Vendor.vendorMenu();
+        Vendor.vendorMenu();
     }
-    
+
 }
