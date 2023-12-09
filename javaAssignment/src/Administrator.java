@@ -66,7 +66,14 @@ public class Admin {
                 case 9:
                     updateRunnerAccount(scanner);
                     break;
-
+                case 10:
+                    deleteVendorAccount(scanner);
+                    break;
+                case 11:
+                    deleteCustomerAccount(scanner);
+                    break;
+                case 12:
+                    deleteRunnerAccount(scanner);
 
 
             }
@@ -194,7 +201,7 @@ public class Admin {
         }
     }
 
-    // ACCOUNT UPDATING
+    // ACCOUNT UPDATING ------------------------------------------------------------------------------------
     public static void updateVendorAccount(Scanner consoleScanner) {
         List<String> vendorAccounts = new ArrayList<>();
         File vendorsFile = new File(VENDORS_FILE_PATH);
@@ -217,13 +224,13 @@ public class Admin {
                 System.out.println("Enter new data:");
                 String newData = consoleScanner.nextLine();
                 vendorAccounts.set(accountNumber, newData);
-                try (FileWriter fileWriter = new FileWriter(vendorsFile, false)){
+                try (FileWriter fileWriter = new FileWriter(vendorsFile, false)) {
                     for (String account : vendorAccounts) {
                         fileWriter.write(account + "\n");
                     }
-                    System.out.println("Account data successfully updated.");
+                    System.out.println("Account data was successfully updated.");
                 } catch (IOException e) {
-                    System.out.println("The error occurred while rewriting the file: " + e.getMessage());
+                    System.out.println("An error occurred while rewriting the file: " + e.getMessage());
                 }
             } else {
                 System.out.println("Incorrect account number!");
@@ -255,13 +262,13 @@ public class Admin {
                 System.out.println("Enter new data:");
                 String newData = consoleScanner.nextLine();
                 customerAccounts.set(accountNumber, newData);
-                try (FileWriter fileWriter = new FileWriter(customersFile, false)){
+                try (FileWriter fileWriter = new FileWriter(customersFile, false)) {
                     for (String account : customerAccounts) {
                         fileWriter.write(account + "\n");
                     }
-                    System.out.println("Account data successfully updated.");
+                    System.out.println("Account data was successfully updated.");
                 } catch (IOException e) {
-                    System.out.println("The error occurred while rewriting the file: " + e.getMessage());
+                    System.out.println("An error occurred while rewriting the file: " + e.getMessage());
                 }
             } else {
                 System.out.println("Incorrect account number!");
@@ -293,13 +300,13 @@ public class Admin {
                 System.out.println("Enter new data:");
                 String newData = consoleScanner.nextLine();
                 runnerAccounts.set(accountNumber, newData);
-                try (FileWriter fileWriter = new FileWriter(runnersFile, false)){
+                try (FileWriter fileWriter = new FileWriter(runnersFile, false)) {
                     for (String account : runnerAccounts) {
                         fileWriter.write(account + "\n");
                     }
-                    System.out.println("Account data successfully updated.");
+                    System.out.println("Account data was successfully updated.");
                 } catch (IOException e) {
-                    System.out.println("The error occurred while rewriting the file: " + e.getMessage());
+                    System.out.println("An error occurred while rewriting the file: " + e.getMessage());
                 }
             } else {
                 System.out.println("Incorrect account number!");
@@ -309,13 +316,121 @@ public class Admin {
         }
     }
 
+    // ACCOUNT DELETING -----------------------------------------
+    public static void deleteVendorAccount(Scanner consoleScanner) {
+        List<String> vendorAccounts = new ArrayList<>();
+        File vendorsFile = new File(VENDORS_FILE_PATH);
+
+        try {
+            Scanner fileScanner = new Scanner(vendorsFile);
+            while (fileScanner.hasNextLine()) {
+                vendorAccounts.add(fileScanner.nextLine());
+            }
+            fileScanner.close();
+
+            for (int i = 0; i < vendorAccounts.size(); i++) {
+                System.out.println((i + 1) + ". " + vendorAccounts.get(i));
+            }
+
+            System.out.println("Choose the number of account you wanna delete:");
+            int accountNumber = consoleScanner.nextInt() - 1;
+
+            if (accountNumber >= 0 && accountNumber < vendorAccounts.size()) {
+                vendorAccounts.remove(accountNumber);
+
+                try (FileWriter fileWriter = new FileWriter(vendorsFile, false)) {
+                    for (String account : vendorAccounts) {
+                        fileWriter.write(account + "\n");
+                    }
+                    System.out.println("Account data was successfully deleted.");
+                } catch (IOException e) {
+                    System.out.println("An error occurred while rewriting the file: " + e.getMessage());
+                }
+            } else {
+                System.out.println("Incorect number of account.");
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found: " + e.getMessage());
+        }
+    }
 
 
+    public static void deleteCustomerAccount(Scanner consoleScanner) {
+        List<String> customerAccounts = new ArrayList<>();
+        File customersFile = new File(CUSTOMERS_FILE_PATH);
 
+        try {
+            Scanner fileScanner = new Scanner(customersFile);
+            while (fileScanner.hasNextLine()) {
+                customerAccounts.add(fileScanner.nextLine());
+            }
+            fileScanner.close();
+
+            for (int i = 0; i < customerAccounts.size(); i++) {
+                System.out.println((i + 1) + ". " + customerAccounts.get(i));
+            }
+
+            System.out.println("Choose the number of account you wanna delete:");
+            int accountNumber = consoleScanner.nextInt() - 1;
+
+            if (accountNumber >= 0 && accountNumber < customerAccounts.size()) {
+                customerAccounts.remove(accountNumber);
+
+                try (FileWriter fileWriter = new FileWriter(customersFile, false)) {
+                    for (String account : customerAccounts) {
+                        fileWriter.write(account + "\n");
+                    }
+                    System.out.println("Account data was successfully deleted.");
+                } catch (IOException e) {
+                    System.out.println("An error occurred while rewriting the file: " + e.getMessage());
+                }
+            } else {
+                System.out.println("Incorect number of account.");
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found: " + e.getMessage());
+        }
+    }
+
+    public static void deleteRunnerAccount(Scanner consoleScanner) {
+        List<String> runnerAccounts = new ArrayList<>();
+        File runnersFile = new File(RUNNERS_FILE_PATH);
+
+        try {
+            Scanner fileScanner = new Scanner(runnersFile);
+            while (fileScanner.hasNextLine()) {
+                runnerAccounts.add(fileScanner.nextLine());
+            }
+            fileScanner.close();
+
+            for (int i = 0; i < runnerAccounts.size(); i++) {
+                System.out.println((i + 1) + ". " + runnerAccounts.get(i));
+            }
+
+            System.out.println("Choose the number of account you wanna delete:");
+            int accountNumber = consoleScanner.nextInt() - 1;
+
+            if (accountNumber >= 0 && accountNumber < runnerAccounts.size()) {
+                runnerAccounts.remove(accountNumber);
+
+                try (FileWriter fileWriter = new FileWriter(runnersFile, false)) {
+                    for (String account : runnerAccounts) {
+                        fileWriter.write(account + "\n");
+                    }
+                    System.out.println("Account data was successfully deleted.");
+                } catch (IOException e) {
+                    System.out.println("An error occurred while rewriting the file: " + e.getMessage());
+                }
+            } else {
+                System.out.println("Incorect number of account.");
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found: " + e.getMessage());
+        }
+    }
 
 
 
 }
-
 
 
