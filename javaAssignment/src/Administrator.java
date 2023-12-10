@@ -40,12 +40,6 @@ public class Admin {
             int choice = scanner.nextInt();
 
             switch (choice) {
-                case 0:
-                    System.out.println("Exiting..");
-
-                    return;
-                default:
-                    System.out.println("Wrong action. Try again.");
                 case 1:
                     createVendorAccount(scanner);
                     break;
@@ -81,6 +75,13 @@ public class Admin {
                     break;
                 case 12:
                     deleteRunnerAccount(scanner);
+                    break;
+                case 0:
+                    System.out.println("Exiting program...");
+                    System.exit(0);
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
                     break;
 
 
