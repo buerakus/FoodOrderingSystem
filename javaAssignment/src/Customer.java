@@ -65,7 +65,7 @@ public class Main {
                         Customer.Menu();
                     } else if ("vendor".equals(role)) {
                         System.out.println("Logged in as vendor");
-                        //Vendor.vendorMenu(currentUser); // Pass the current user to vendorMenu
+                        Vendor.vendorMenu(currentUser); // Pass the current user to vendorMenu
                     } else if ("delivery".equals(role)) {
                         System.out.println("Logged in as delivery runner");
                         DeliveryRunner.deliveryMenu(currentUser);
