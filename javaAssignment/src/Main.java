@@ -76,7 +76,7 @@ public class Main {
             }
         }
     }
-    
+
 
     private static String userLogin(String username, String password) {
         try (BufferedReader br = new BufferedReader(new FileReader(CREDENTIALS_FILE))) {
