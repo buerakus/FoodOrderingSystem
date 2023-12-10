@@ -3,13 +3,16 @@ import java.util.Scanner;
 import java.io.IOException;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.io.BufferedWriter;
 import java.io.PrintWriter;
+import java.io.BufferedReader;
+import java.util.InputMismatchException;
 
-public class Administrator {
-    private static final String CREDENTIALS_FILE_PATH = "C:\\Users\\Dimash\\Desktop\\user_credentials.txt";
+public class Admin {
+    private static final String CREDENTIALS_FILE_PATH = "C:\\Users\\lorde\\IdeaProjects\\OODJAssignment\\src\\accounts.txt";
     public static void vesp() {
 
         Scanner scanner = new Scanner(System.in);
@@ -38,6 +41,11 @@ public class Administrator {
                 case 3:
                     runnerEditMenu();
                     break;
+                case 4:
+                    addBalanceToCustomerWallet();
+                    break;
+                case 5:
+                    generateTransactionReceipts();
                 case 0:
                     System.out.println("Exiting program...");
                     return;
@@ -62,6 +70,7 @@ public class Administrator {
             System.out.println("2. Update vendor account");
             System.out.println("3. Delete vendor account");
             System.out.println("4. Read vendor account");
+            System.out.println("5. Top-up customer balance");
             System.out.println("0. Exit");
             System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 
@@ -353,6 +362,116 @@ public class Administrator {
         } catch (FileNotFoundException e) {
             System.out.println("File not found: " + e.getMessage());
         }
+    }
+    public static void addBalanceToCustomerWallet() {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Введите ID клиента для добавления баланса: ");
+        String customerId = scanner.nextLine();
+
+        System.out.println("Введите сумму для добавления к балансу: ");
+        double amountToAdd;
+        try {
+            amountToAdd = scanner.nextDouble();
+        } catch (InputMismatchException e) {
+            System.out.println("Некорректный ввод суммы. Операция отменена.");
+            return;
+        }
+
+        if (amountToAdd <= 0) {
+            System.out.println("Сумма должна быть положительной. Операция отменена.");
+            return;
+        }
+
+        // Update the balance in wallets.txt
+        updateCustomerBalance(customerId, amountToAdd);
+    }
+
+    private static void updateCustomerBalance(String customerId, double amountToAdd) {
+        String WALLETS_FILE_PATH = "C:\\Users\\lorde\\IdeaProjects\\OODJAssignment\\src\\customer files\\c.Wallets.txt";
+        File walletsFile = new File(WALLETS_FILE_PATH);
+        File tempFile = new File(walletsFile.getAbsolutePath() + ".tmp");
+
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(walletsFile));
+            BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
+
+            String currentLine;
+            boolean customerFound = false;
+
+            while ((currentLine = reader.readLine()) != null) {
+                String[] parts = currentLine.split(";");
+                if (parts[0].equals(customerId) && parts.length > 1) {
+                    double currentBalance = Double.parseDouble(parts[1]);
+                    double newBalance = currentBalance + amountToAdd;
+                    String updatedLine = customerId + ";" + newBalance + ";" + (parts.length > 2 ? parts[2] : "");
+                    writer.write(updatedLine + System.lineSeparator());
+                    customerFound = true;
+                } else {
+                    writer.write(currentLine + System.lineSeparator());
+                }
+            }
+
+            if (!customerFound) {
+                System.out.println("Клиент с ID " + customerId + " не найден.");
+                tempFile.delete();
+                return;
+            }
+
+            writer.close();
+            reader.close();
+
+            if (!walletsFile.delete()) {
+                System.out.println("Не удалось удалить оригинальный файл кошельков.");
+                return;
+            }
+
+            if (!tempFile.renameTo(walletsFile)) {
+                System.out.println("Не удалось обновить файл кошельков.");
+            } else {
+                System.out.println("Баланс клиента обновлен.");
+            }
+
+        } catch (IOException e) {
+            System.out.println("Ошибка при обновлении баланса: " + e.getMessage());
+        } catch (NumberFormatException e) {
+            System.out.println("Ошибка при чтении баланса клиента.");
+        }
+    }
+    private static final String ORDER_HISTORY_FILE_PATH = "C:\\Users\\lorde\\IdeaProjects\\OODJAssignment\\src\\customer files\\c.OrderHistory.txt";
+    private static final String TRANS_RECEIPTS_FILE_PATH = "C:\\Users\\lorde\\IdeaProjects\\OODJAssignment\\src\\customer files\\c.TransactionHistory.txt";
+    public static void generateTransactionReceipts() {
+        Scanner inputScanner = new Scanner(System.in);
+        System.out.println("Enter Customer ID for which to generate transaction receipts:");
+        String customerId = inputScanner.nextLine();
+
+        try {
+            File orderHistoryFile = new File(ORDER_HISTORY_FILE_PATH);
+            Scanner fileScanner = new Scanner(orderHistoryFile);
+            BufferedWriter writer = new BufferedWriter(new FileWriter(TRANS_RECEIPTS_FILE_PATH, true));
+
+            while (fileScanner.hasNextLine()) {
+                String order = fileScanner.nextLine();
+                if (order.contains(customerId)) {
+                    String receipt = createReceiptFromOrder(order);
+                    writer.write(receipt + "\n");
+                }
+            }
+
+            fileScanner.close();
+            writer.close();
+            System.out.println("Transaction receipts generated for customer ID " + customerId);
+        } catch (FileNotFoundException e) {
+            System.out.println("Order history file not found: " + e.getMessage());
+        } catch (IOException e) {
+            System.out.println("Error writing to transaction receipts file: " + e.getMessage());
+        }
+    }
+
+    private static String createReceiptFromOrder(String order) {
+        // Assuming the order format is: itemId, customerId, vendorName, ..., orderDate, price, status
+        String[] parts = order.split(", ");
+        return "Receipt" + " CustomerID " + parts [3] + " - Order ID: " + parts[0] + ", Vendor Name: " + parts[2] + ", Date: " + parts[5] + ", Price: " + parts[6];
     }
 
 
