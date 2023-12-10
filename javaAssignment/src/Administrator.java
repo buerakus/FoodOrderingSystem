@@ -5,129 +5,194 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.io.BufferedWriter;
+import java.io.PrintWriter;
 
 public class Administrator {
-    private static final String CREDENTIALS_FILE_PATH = "C:\\Users\\Yura\\Desktop\\user_credentials.txt";
-        public static void vesp() {
+    private static final String CREDENTIALS_FILE_PATH = "C:\\Users\\Dimash\\Desktop\\user_credentials.txt";
+    public static void vesp() {
 
-            Scanner scanner = new Scanner(System.in);
+        Scanner scanner = new Scanner(System.in);
 
-            while (true) {
-                System.out.println("ADMIN MENU");
-                System.out.println("0. Exit");
-                System.out.println("1. Create vendor account");
-                System.out.println("2. Create customer account");
-                System.out.println("3. Create runner account");
-                System.out.println("4. Read vendor account");
-                System.out.println("5. Read customer account");
-                System.out.println("6. Read runner account");
-                System.out.println("7. Update vendor account");
-                System.out.println("8. Update customer account");
-                System.out.println("9. Update runner account");
-                System.out.println("10. Delete vendor account");
-                System.out.println("11. Delete customer account");
-                System.out.println("12. Delete runner account");
-                System.out.println("13. Top-up customer credit");
-                System.out.println("14. Generate transaction receipt");
-                System.out.println("15. Send receipt to customer through notification");
-
-                int choice = scanner.nextInt();
-
-                switch (choice) {
-                    case 1:
-                        createVendorAccount(scanner);
-                        break;
-                    case 2:
-                        createCustomerAccount(scanner);
-                        break;
-                    case 3:
-                        createRunnerAccount(scanner);
-                        break;
-                    case 4:
-                        readVendorAccount();
-                        break;
-                    case 5:
-                        readCustomerAccount();
-                        break;
-                    case 6:
-                        readRunnerAccount();
-                        break;
-                    case 7:
-                        updateVendorAccount(scanner);
-                        break;
-                    case 8:
-                        updateCustomerAccount(scanner);
-                        break;
-                    case 9:
-                        updateRunnerAccount(scanner);
-                        break;
-                    case 10:
-                        deleteVendorAccount(scanner);
-                        break;
-                    case 11:
-                        deleteCustomerAccount(scanner);
-                        break;
-                    case 12:
-                        deleteRunnerAccount(scanner);
-                        break;
-
-                    case 0:
-                        System.out.println("Exiting program...");
-                        System.exit(0);
-                        break;
-                    default:
-                        System.out.println("Invalid choice. Please try again.");
-                        break;
+        while (true) {
+            System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<ADMIN MENU>>>>>>>>>>>>>>>>>>>>>>>>");
+            System.out.println("1. Create/Update/Delete/Read: vendor account");
+            System.out.println("2. Create/Update/Delete/Read: customer account");
+            System.out.println("3. Create/Update/Delete/Read: runner account");
+            System.out.println("4. Top-up customer credit");
+            System.out.println("5. Generate transaction receipt");
+            System.out.println("6. Send receipt to customer through notification");
+            System.out.println("0. Exit");
+            System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 
 
-                }
+            int choice = scanner.nextInt();
+
+            switch (choice) {
+                case 1:
+                    vendorEditMenu();
+                    break;
+                case 2:
+                    customerEditMenu();
+                    break;
+                case 3:
+                    runnerEditMenu();
+                    break;
+                case 0:
+                    System.out.println("Exiting program...");
+                    return;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+                    break;
+
 
             }
 
         }
 
-    ///// ACCOUNT CREATING //////////////////////////////////////////////////////////////////////////////////////////////
-    public static void createVendorAccount(Scanner scanner) {
-        System.out.println("Login,password,VendorID");
-        scanner.nextLine();
-        String vendorData = "vendor:" + scanner.nextLine();
-        appendDataToFile(CREDENTIALS_FILE_PATH, vendorData);
     }
 
-    public static void createCustomerAccount(Scanner scanner) {
-        System.out.println("Login,password,CustomerID");
-        scanner.nextLine();
-        String customerData = "customer:" + scanner.nextLine();
-        appendDataToFile(CREDENTIALS_FILE_PATH, customerData);
-    }
+    private static void  vendorEditMenu() {
+        Scanner scanner = new Scanner(System.in);
 
-    public static void createRunnerAccount(Scanner scanner) {
-        System.out.println("Login,password,RunnerID");
-        scanner.nextLine();
-        String runnerData = "runner:" + scanner.nextLine();
-        appendDataToFile(CREDENTIALS_FILE_PATH, runnerData);
-    }
-    private static void appendDataToFile(String fileName, String data) {
-        try (FileWriter fileWriter = new FileWriter(fileName, true)) {
-            fileWriter.write(data + "\n");
-            System.out.println("Account has been created.");
-        } catch (IOException e) {
-            System.out.println("An error occurred while writing to the file: " + e.getMessage());
+        while (true) {
+            System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+            System.out.println("Vendor Edit Menu:");
+            System.out.println("1. Create vendor account");
+            System.out.println("2. Update vendor account");
+            System.out.println("3. Delete vendor account");
+            System.out.println("4. Read vendor account");
+            System.out.println("0. Exit");
+            System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+
+            int choice = scanner.nextInt();
+            scanner.nextLine();
+            switch (choice) {
+                case 1:
+                    registerUser("vendor");
+                    break;
+                case 2:
+                    updateVendorAccount(scanner);
+                    break;
+                case 3:
+                    deleteVendorAccount(scanner);
+                    break;
+                case 4:
+                    readVendorAccount();
+                    break;
+                case 0:
+                    System.out.println("Exiting menu...");
+                    return;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
         }
+    }
+
+    private static void  customerEditMenu() {
+        Scanner scanner = new Scanner(System.in);
+
+        while (true) {
+            System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+            System.out.println("Customer Edit Menu:");
+            System.out.println("1. Create customer account");
+            System.out.println("2. Update customer account");
+            System.out.println("3. Delete customer account");
+            System.out.println("4. Read customer account");
+            System.out.println("0. Exit");
+            System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+
+            int choice = scanner.nextInt();
+            scanner.nextLine();
+            switch (choice) {
+                case 1:
+                    registerUser("customer");
+                    break;
+                case 2:
+                    updateCustomerAccount(scanner);
+                    break;
+                case 3:
+                    deleteCustomerAccount(scanner);
+                    break;
+                case 4:
+                    readCustomerAccount();
+                    break;
+                case 0:
+                    System.out.println("Exiting menu...");
+                    return;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        }
+    }
+
+    private static void  runnerEditMenu() {
+        Scanner scanner = new Scanner(System.in);
+
+        while (true) {
+            System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+            System.out.println("Runner Edit Menu:");
+            System.out.println("1. Create Delivery account");
+            System.out.println("2. Update Delivery account");
+            System.out.println("3. Delete Delivery account");
+            System.out.println("4. Read Delivery account");
+            System.out.println("0. Exit");
+            System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+
+            int choice = scanner.nextInt();
+            scanner.nextLine();
+            switch (choice) {
+                case 1:
+                    registerUser("delivery");
+                    break;
+                case 2:
+                    updateRunnerAccount(scanner);
+                    break;
+                case 3:
+                    deleteRunnerAccount(scanner);
+                    break;
+                case 4:
+                    readRunnerAccount();
+                    break;
+                case 0:
+                    System.out.println("Exiting menu...");
+                    return;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        }
+    }
+
+    ///// ACCOUNT CREATING //////////////////////////////////////////////////////////////////////////////////////////////
+
+    private static void registerUser(String role) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter username for " + role + ": ");
+        String username = scanner.nextLine();
+        System.out.print("Enter password for " + role + ": ");
+        String password = scanner.nextLine();
+
+        try (FileWriter fw = new FileWriter(CREDENTIALS_FILE_PATH, true);
+             BufferedWriter bw = new BufferedWriter(fw);
+             PrintWriter out = new PrintWriter(bw)) {
+            out.println(role + "," + username + "," + password);
+        } catch (IOException e) {
+            System.out.println("An error occurred while writing to the file.");
+        }
+
+        System.out.println(role + " user registered successfully.");
     }
 
     //////// ACCOUNT READING ///////////////////////////////////////////////////
     public static void readVendorAccount() {
-        readFileAndPrintAccounts("vendor:");
+        readFileAndPrintAccounts("vendor,");
     }
 
     public static void readCustomerAccount() {
-        readFileAndPrintAccounts("customer:");
+        readFileAndPrintAccounts("customer,");
     }
 
-    public static void readRunnerAccount() {
-        readFileAndPrintAccounts("runner:");
-    }
+    public static void readRunnerAccount() {readFileAndPrintAccounts("delivery,");}
 
     private static void readFileAndPrintAccounts(String accountTypePrefix) {
         try {
@@ -157,15 +222,15 @@ public class Administrator {
 
     ///////// ACCOUNT UPDATING ////////////////////////////////////////
     public static void updateVendorAccount(Scanner consoleScanner) {
-        updateAccount(consoleScanner, "vendor:");
+        updateAccount(consoleScanner, "vendor,");
     }
 
     public static void updateCustomerAccount(Scanner consoleScanner) {
-        updateAccount(consoleScanner, "customer:");
+        updateAccount(consoleScanner, "customer,");
     }
 
     public static void updateRunnerAccount(Scanner consoleScanner) {
-        updateAccount(consoleScanner, "runner:");
+        updateAccount(consoleScanner, "delivery,");
     }
 
     private static void updateAccount(Scanner consoleScanner, String accountTypePrefix) {
@@ -226,15 +291,15 @@ public class Administrator {
 
     //// ACCOUNT DELETING //////////////////////////////////////////////////////////
     public static void deleteVendorAccount(Scanner scanner) {
-        deleteAccount(scanner, "vendor:");
+        deleteAccount(scanner, "vendor,");
     }
 
     public static void deleteCustomerAccount(Scanner scanner) {
-        deleteAccount(scanner, "customer:");
+        deleteAccount(scanner, "customer,");
     }
 
     public static void deleteRunnerAccount(Scanner scanner) {
-        deleteAccount(scanner, "runner:");
+        deleteAccount(scanner, "delivery,");
     }
     private static void deleteAccount(Scanner consoleScanner, String accountTypePrefix) {
         List<String> accounts = new ArrayList<>();
@@ -294,8 +359,3 @@ public class Administrator {
 
 
 }
-
-
-
-
-
