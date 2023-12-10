@@ -20,6 +20,7 @@ public class Admin {
 
         while (true) {
             System.out.println("ADMIN MENU");
+            System.out.println("0. Exit");
             System.out.println("1. Create vendor account");
             System.out.println("2. Create customer account");
             System.out.println("3. Create runner account");
@@ -39,6 +40,12 @@ public class Admin {
             int choice = scanner.nextInt();
 
             switch (choice) {
+                case 0:
+                    System.out.println("Exiting..");
+
+                    return;
+                default:
+                    System.out.println("Wrong action. Try again.");
                 case 1:
                     createVendorAccount(scanner);
                     break;
@@ -74,6 +81,7 @@ public class Admin {
                     break;
                 case 12:
                     deleteRunnerAccount(scanner);
+                    break;
 
 
             }
