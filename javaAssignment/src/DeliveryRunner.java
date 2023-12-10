@@ -1,6 +1,4 @@
-import java.io.*;
 import java.io.File;
-import java.util.ArrayList;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.FileWriter;
@@ -15,7 +13,12 @@ public class DeliveryRunner {
     private static final String TASK_FILE_PATH = "C:\\Users\\Dimash\\Desktop\\Task.txt";
     private static final String COURIER_TASKS_FILE_PATH = "C:\\Users\\Dimash\\Desktop\\CourierTasks.txt";
 
-    public static void main(String[] args) {
+    public static void deliveryMenu (User currentUser) {
+        if (currentUser == null || !"delivery".equals(currentUser.getRole())) {
+            System.out.println("Access denied. Only delivery can access this menu.");
+            return; // Exit the method if the user is not a vendor
+        }
+
         Scanner scanner = new Scanner(System.in);
 
         while (true) {
@@ -37,19 +40,19 @@ public class DeliveryRunner {
                     viewTask();
                     break;
                 case 2:
-                    acceptOrRejectTask();
+                    acceptOrRejectTask(currentUser);
                     break;
                 case 3:
-                    updateTaskStatus();
+                    updateTaskStatus(currentUser);
                     break;
                 case 4:
-                    viewTaskHistory();
+                    viewTaskHistory(currentUser);
                     break;
                 case 5:
-                    readClientReview();
+                    readClientReview(currentUser);
                     break;
                 case 6:
-                    incomeMonitoringPanel();
+                    incomeMonitoringPanel(currentUser);
                     break;
                 case 0:
                     System.out.println("Программа завершена.");
@@ -69,7 +72,7 @@ public class DeliveryRunner {
 
             // Печать заголовка таблицы
             System.out.println("----------------------------------------------------------------------------------------------------");
-            System.out.printf("| %-10s | %-15s | %-6s | %-12s | %-12s | %-20s |\n", "№", "Позиция", "ID", "Дата заказа", "Цена", "Статус");
+            System.out.printf("| %-10s | %-20s | %-6s | %-12s | %-12s | %-20s |\n", "№", "Позиция", "ID", "Дата заказа", "Цена", "Статус");
             System.out.println("----------------------------------------------------------------------------------------------------");
 
             // Чтение и печать данных из файла Task.txt в виде таблицы
@@ -78,7 +81,7 @@ public class DeliveryRunner {
                 String[] columns = line.split(", ");
 
                 // Печать данных каждой строки в таблице
-                System.out.printf("| %-10s | %-15s | %-6s | %-12s | RM%-10s | %-20s |\n",
+                System.out.printf("| %-10s | %-20s | %-6s | %-12s | RM%-10s | %-20s |\n",
                         rowNum, columns[0], columns[1], columns[2], columns[3], columns[4]);
 
                 rowNum++;
@@ -93,7 +96,7 @@ public class DeliveryRunner {
 
 
 
-    private static void  acceptOrRejectTask() {
+    private static void  acceptOrRejectTask(User currentUser) {
         Scanner scanner = new Scanner(System.in);
 
         while (true) {
@@ -106,10 +109,10 @@ public class DeliveryRunner {
             scanner.nextLine();
             switch (choice) {
                 case 1:
-                    acceptOrder();
+                    acceptOrder(currentUser);
                     break;
                 case 2:
-                    rejectOrder();
+                    rejectOrder(currentUser);
                     break;
                 case 3:
                     System.out.println("Выход из меню выбора.");
@@ -120,7 +123,8 @@ public class DeliveryRunner {
         }
     }
 
-    private static void acceptOrder() {
+    private static void acceptOrder(User currentUser) {
+        String deliveryPrefix =", " + currentUser.getUsername();
         try {
             File taskFile = new File(TASK_FILE_PATH);
             Scanner fileScanner = new Scanner(taskFile);
@@ -129,7 +133,7 @@ public class DeliveryRunner {
 
             // Печать заголовка таблицы
             System.out.println("----------------------------------------------------------------------------------------------------------");
-            System.out.printf("| %-10s | %-15s | %-6s | %-12s | %-12s | %-20s |\n", "№", "Позиция", "ID", "Дата заказа", "Цена", "Статус");
+            System.out.printf("| %-10s | %-20s | %-6s | %-12s | %-12s | %-20s |\n", "№", "Позиция", "ID", "Дата заказа", "Цена", "Статус");
             System.out.println("----------------------------------------------------------------------------------------------------------");
 
             // Чтение и печать данных из файла Task.txt в виде таблицы
@@ -139,7 +143,7 @@ public class DeliveryRunner {
 
                 // Печать данных каждой строки в таблице, если статус "в ожидании принятия" или "отменен"
                 if (columns[4].equals("в ожидании принятия") || columns[4].equals("отклонен")) {
-                    System.out.printf("| %-10s | %-15s | %-6s | %-12s | RM%-11s | %-20s |\n",
+                    System.out.printf("| %-10s | %-20s | %-6s | %-12s | RM%-11s | %-20s |\n",
                             rowNum, columns[0], columns[1], columns[2], columns[3], columns[4]);
                 }
 
@@ -168,7 +172,7 @@ public class DeliveryRunner {
 
                     if (currentTask == chosenTaskNumber) {
                         // Записать выбранную задачу в файл курьера со статусом "принят"
-                        bufferedWriter.write(columns[0] + ", " + columns[1] + ", " + columns[2] + ", " + columns[3] + ", принят\n");
+                        bufferedWriter.write(columns[0] + ", " + columns[1] + ", " + columns[2] + ", " + columns[3] + ", принят" + deliveryPrefix +"\n");
                         System.out.println("Задание записано в личный файл курьера.");
                     }
 
@@ -221,7 +225,8 @@ public class DeliveryRunner {
 
 
 
-    private static void rejectOrder() {
+    private static void rejectOrder(User currentUser) {
+        String deliveryPrefix =currentUser.getUsername();
         try {
             File courierTasksFile = new File(COURIER_TASKS_FILE_PATH);
             Scanner fileScanner = new Scanner(courierTasksFile);
@@ -239,7 +244,7 @@ public class DeliveryRunner {
                 String[] columns = line.split(", ");
 
                 // Печать данных каждой строки в таблице, если статус "принят"
-                if (columns[4].trim().equals("принят")) {
+                if (columns[4].trim().equals("принят") && columns[5].trim().equals(deliveryPrefix)) {
                     System.out.printf("| %-10s | %-15s | %-6s | %-12s | RM%-11s | %-20s |\n",
                             rowNum, columns[0], columns[1], columns[2], columns[3], columns[4]);
                 }
@@ -308,7 +313,7 @@ public class DeliveryRunner {
                 // Создание новой строки с статусом "отклонен"
                 String[] columns = line.split(", ");
                 newTaskData.append(columns[0]).append(", ").append(columns[1]).append(", ").append(columns[2])
-                        .append(", ").append(columns[3]).append(", отклонен\n");
+                        .append(", ").append(columns[3]).append(", отклонен").append(", ").append(columns[4]).append("\n");
             }
 
             currentTask++;
@@ -325,7 +330,8 @@ public class DeliveryRunner {
 
 
 
-    private static void updateTaskStatus() {
+    private static void updateTaskStatus(User currentUser) {
+        String deliveryPrefix =currentUser.getUsername();
         try {
             File courierTasksFile = new File(COURIER_TASKS_FILE_PATH);
             Scanner fileScanner = new Scanner(courierTasksFile);
@@ -343,7 +349,7 @@ public class DeliveryRunner {
                 String[] columns = line.split(", ");
 
                 // Печать данных каждой строки в таблице, если статус "принят" или "в процессе доставки"
-                if (columns[4].trim().equals("принят") || columns[4].trim().equals("в процессе доставки")) {
+                if ((columns[4].trim().equals("принят") || columns[4].trim().equals("в процессе доставки")) && columns[5].trim().equals(deliveryPrefix)) {
                     System.out.printf("| %-10s | %-15s | %-6s | %-12s | RM%-11s | %-20s |\n",
                             rowNum, columns[0], columns[1], columns[2], columns[3], columns[4]);
                 }
@@ -387,12 +393,14 @@ public class DeliveryRunner {
                 if (columns[4].trim().equals("принят")) {
                     // Обновление статуса на "в процессе доставки"
                     newCourierTasksData.append(columns[0]).append(", ").append(columns[1]).append(", ")
-                            .append(columns[2]).append(", ").append(columns[3]).append(", в процессе доставки\n");
+                            .append(columns[2]).append(", ").append(columns[3]).append(", в процессе доставки")
+                            .append(", ").append(columns[5]).append("\n");
                     updateStatusInTaskFile(columns[1], "в процессе доставки");
                 } else if (columns[4].trim().equals("в процессе доставки")) {
                     // Обновление статуса на "доставлен"
                     newCourierTasksData.append(columns[0]).append(", ").append(columns[1]).append(", ")
-                            .append(columns[2]).append(", ").append(columns[3]).append(", доставлен\n");
+                            .append(columns[2]).append(", ").append(columns[3]).append(", доставлен")
+                            .append(", ").append(columns[5]).append("\n");
                     updateStatusInTaskFile(columns[1], "доставлен");
                 }
             }
@@ -439,7 +447,8 @@ public class DeliveryRunner {
 
 
 
-    private static void viewTaskHistory() {
+    private static void viewTaskHistory(User currentUser) {
+        String deliveryPrefix =currentUser.getUsername();
         try {
             File courierTasksFile = new File(COURIER_TASKS_FILE_PATH);
             Scanner fileScanner = new Scanner(courierTasksFile);
@@ -457,7 +466,7 @@ public class DeliveryRunner {
                 String[] columns = line.split(", ");
 
                 // Печать данных каждой строки в таблице, если статус "доставлен"
-                if (columns[4].trim().equals("доставлен")) {
+                if (columns[4].trim().equals("доставлен") && columns[5].trim().equals(deliveryPrefix)) {
                     System.out.printf("| %-10s | %-20s | %-6s | %-12s | RM%-11s | %-20s |\n",
                             rowNum, columns[0], columns[1], columns[2], columns[3], columns[4]);
                 }
@@ -473,12 +482,12 @@ public class DeliveryRunner {
     }
 
 
-    private static void readClientReview() {
+    private static void readClientReview(User currentUser) {
         // Логика чтения отзыва клиента
         // Можно считать отзыв из файла или вводить пользователем
     }
 
-    private static void incomeMonitoringPanel() {
+    private static void incomeMonitoringPanel(User currentUser) {
         Scanner scanner = new Scanner(System.in);
 
         while (true) {
@@ -494,13 +503,13 @@ public class DeliveryRunner {
 
             switch (choice) {
                 case 1:
-                    incomeAnalysis();
+                    incomeAnalysis(currentUser);
                     break;
                 case 2:
-                    profitCalculations();
+                    profitCalculations(currentUser);
                     break;
                 case 3:
-                    completedOrdersStat();
+                    completedOrdersStat(currentUser);
                     break;
                 case 0:
                     System.out.println("Выход из программы.");
@@ -510,7 +519,7 @@ public class DeliveryRunner {
             }
         }
     }
-    private static void  incomeAnalysis() {
+    private static void  incomeAnalysis(User currentUser) {
         Scanner scanner = new Scanner(System.in);
 
         System.out.println("Введите дату начала периода (MM/dd/yyyy):");
@@ -572,7 +581,8 @@ public class DeliveryRunner {
 
 
 
-    private static void profitCalculations() {
+    private static void profitCalculations(User currentUser) {
+        String deliveryPrefix =currentUser.getUsername();
         try {
             File courierTasksFile = new File(COURIER_TASKS_FILE_PATH);
             Scanner fileScanner = new Scanner(courierTasksFile);
@@ -583,7 +593,7 @@ public class DeliveryRunner {
                 String line = fileScanner.nextLine();
                 String[] columns = line.split(", ");
 
-                if (columns.length >= 5 && columns[4].trim().equals("доставлен")) {
+                if (columns.length >= 6 && columns[4].trim().equals("доставлен") && columns[5].trim().equals(deliveryPrefix)) {
                     double deliveryPrice = Double.parseDouble(columns[3]); // Предполагаем, что цена - четвертый столбец
                     totalProfit += deliveryPrice;
                 }
@@ -600,7 +610,8 @@ public class DeliveryRunner {
 
 
 
-    private static void completedOrdersStat() {
+    private static void completedOrdersStat(User currentUser) {
+        String deliveryPrefix =currentUser.getUsername();
         try {
             File courierTasksFile = new File(COURIER_TASKS_FILE_PATH);
             Scanner fileScanner = new Scanner(courierTasksFile);
@@ -611,7 +622,7 @@ public class DeliveryRunner {
                 String line = fileScanner.nextLine();
                 String[] columns = line.split(", ");
 
-                if (columns.length >= 5 && columns[4].trim().equals("доставлен")) {
+                if (columns.length >= 5 && columns[4].trim().equals("доставлен") && columns[5].trim().equals(deliveryPrefix)) {
                     completedOrdersCount++;
                 }
             }
