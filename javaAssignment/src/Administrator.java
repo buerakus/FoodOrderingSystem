@@ -14,7 +14,7 @@ public class Admin {
     private static final String RUNNERS_FILE_PATH = "C:\\Users\\Yura\\Desktop\\Runners.txt";
 
 
-    public static void main(String[] args) {
+    public static void yura() {
 
         Scanner scanner = new Scanner(System.in);
 
@@ -84,7 +84,7 @@ public class Admin {
     // ACCOUNT CREATING --------------------------------------------------------------------------
 
     public static void createCustomerAccount(Scanner scanner) {
-        System.out.println("Name,Login,password,CustomerID");
+        System.out.println("Name,Login,password,WalletID");
         scanner.nextLine();
         String customerData = scanner.nextLine();
         appendCustomerDataToFile(CUSTOMERS_FILE_PATH, customerData);
