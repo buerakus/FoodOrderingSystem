@@ -12,11 +12,12 @@ import java.util.Date;
 public class DeliveryRunner {
     private static final String TASK_FILE_PATH = "C:\\Users\\Dimash\\Desktop\\Task.txt";
     private static final String COURIER_TASKS_FILE_PATH = "C:\\Users\\Dimash\\Desktop\\CourierTasks.txt";
+    private static final String CUSTOMER_FEEDBACK_PATH = "C:\\Users\\Dimash\\Desktop\\CustomerFeedback.txt";
 
     public static void deliveryMenu (User currentUser) {
         if (currentUser == null || !"delivery".equals(currentUser.getRole())) {
-            System.out.println("Access denied. Only delivery can access this menu.");
-            return; // Exit the method if the user is not a vendor
+            System.out.println("Access denied. Only delivery runner can access this menu.");
+            return; // Exit the method if the user is not a delivery runner
         }
 
         Scanner scanner = new Scanner(System.in);
@@ -68,19 +69,20 @@ public class DeliveryRunner {
             File taskFile = new File(TASK_FILE_PATH);
             Scanner fileScanner = new Scanner(taskFile);
 
-            int rowNum = 1; // Порядковый номер начинается с 1
+            int rowNum = 1;
 
             // Печать заголовка таблицы
+            // Printing the table header
             System.out.println("----------------------------------------------------------------------------------------------------");
             System.out.printf("| %-10s | %-20s | %-6s | %-12s | %-12s | %-20s |\n", "№", "Позиция", "ID", "Дата заказа", "Цена", "Статус");
             System.out.println("----------------------------------------------------------------------------------------------------");
 
             // Чтение и печать данных из файла Task.txt в виде таблицы
+            // Reading and printing data from the Task.txt file in the form of a table
             while (fileScanner.hasNextLine()) {
                 String line = fileScanner.nextLine();
                 String[] columns = line.split(", ");
 
-                // Печать данных каждой строки в таблице
                 System.out.printf("| %-10s | %-20s | %-6s | %-12s | RM%-10s | %-20s |\n",
                         rowNum, columns[0], columns[1], columns[2], columns[3], columns[4]);
 
@@ -129,19 +131,16 @@ public class DeliveryRunner {
             File taskFile = new File(TASK_FILE_PATH);
             Scanner fileScanner = new Scanner(taskFile);
 
-            int rowNum = 1; // Порядковый номер начинается с 1
-
-            // Печать заголовка таблицы
+            int rowNum = 1;
             System.out.println("----------------------------------------------------------------------------------------------------------");
             System.out.printf("| %-10s | %-20s | %-6s | %-12s | %-12s | %-20s |\n", "№", "Позиция", "ID", "Дата заказа", "Цена", "Статус");
             System.out.println("----------------------------------------------------------------------------------------------------------");
-
-            // Чтение и печать данных из файла Task.txt в виде таблицы
             while (fileScanner.hasNextLine()) {
                 String line = fileScanner.nextLine();
                 String[] columns = line.split(", ");
 
                 // Печать данных каждой строки в таблице, если статус "в ожидании принятия" или "отменен"
+                // Printing the data of each row in the table if the status is "pending acceptance" or "canceled"
                 if (columns[4].equals("в ожидании принятия") || columns[4].equals("отклонен")) {
                     System.out.printf("| %-10s | %-20s | %-6s | %-12s | RM%-11s | %-20s |\n",
                             rowNum, columns[0], columns[1], columns[2], columns[3], columns[4]);
@@ -153,17 +152,17 @@ public class DeliveryRunner {
             System.out.println("----------------------------------------------------------------------------------------------------------");
             fileScanner.close();
 
-            // Выбор курьера
+            // Couriers Choice
             Scanner scanner = new Scanner(System.in);
             System.out.println("Введите номер заказа для принятия или 0 для выхода: ");
             int chosenTaskNumber = scanner.nextInt();
 
             if (chosenTaskNumber > 0 && chosenTaskNumber < rowNum) {
-                // Открыть файл курьера для записи выбранной задачи
+                // Open the courier file to record the selected task
                 FileWriter courierFileWriter = new FileWriter(COURIER_TASKS_FILE_PATH, true);
                 BufferedWriter bufferedWriter = new BufferedWriter(courierFileWriter);
 
-                // Повторно открыть файл с заданиями для поиска выбранной задачи по номеру
+                // search for the selected task by number
                 fileScanner = new Scanner(taskFile);
                 int currentTask = 1;
                 while (fileScanner.hasNextLine()) {
@@ -483,9 +482,56 @@ public class DeliveryRunner {
 
 
     private static void readClientReview(User currentUser) {
-        // Логика чтения отзыва клиента
-        // Можно считать отзыв из файла или вводить пользователем
+        String deliveryPrefix = currentUser.getUsername();
+        try {
+
+
+            File feedbackFile = new File(CUSTOMER_FEEDBACK_PATH);
+            Scanner fileScanner = new Scanner(feedbackFile);
+
+            while (fileScanner.hasNextLine()) {
+                String line = fileScanner.nextLine();
+                String[] columns = line.split("/ ");
+
+                if (columns.length >= 5 && columns[4].trim().equals(deliveryPrefix)) {
+                    // Печать разделителя
+                    System.out.println("-----------------------------------------------------------");
+                    // Печать имени клиента
+                    System.out.println("Имя клиента: " + columns[2]);
+                    // Печать текста отзыва
+                    System.out.println("Отзыв:");
+                    String feedbackText = columns[3];
+                    printAlignedFeedback(feedbackText);
+                    System.out.println("-----------------------------------------------------------");
+                }
+            }
+
+            fileScanner.close();
+
+        } catch (FileNotFoundException e) {
+            System.out.println("Файл отзывов клиентов не найден.");
+        }
     }
+
+    private static void printAlignedFeedback(String feedbackText) {
+        final int MAX_LINE_LENGTH = 58; // Максимальная длина строки
+        int charsPrinted = 0;
+
+        for (char c : feedbackText.toCharArray()) {
+            System.out.print(c);
+            charsPrinted++;
+
+            if (charsPrinted == MAX_LINE_LENGTH) {
+                System.out.println();
+                charsPrinted = 0;
+            }
+        }
+        if (charsPrinted > 0) {
+            System.out.println();
+        }
+    }
+
+
 
     private static void incomeMonitoringPanel(User currentUser) {
         Scanner scanner = new Scanner(System.in);
