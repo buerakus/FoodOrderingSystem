@@ -1,10 +1,5 @@
-
-
 import java.util.Scanner;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.PrintWriter;
 import java.io.IOException;
 import java.io.FileReader;
 
@@ -40,7 +35,7 @@ class CurrentUser {
 
 public class Main {
 
-    private static final String CREDENTIALS_FILE = "user_credentials.txt";
+    private static final String CREDENTIALS_FILE = "C:\\Users\\Dimash\\Desktop\\user_credentials.txt";
     private static final Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
@@ -54,7 +49,7 @@ public class Main {
 
             if ("admin".equals(enteredUsername) && "admin".equals(enteredPassword)) {
                 CurrentUser.setCurrentUser(new User("admin", "admin"));  // Set admin as the current user
-                Admin.yura();
+                Administrator.vesp();
             } else {
                 String role = userLogin(enteredUsername, enteredPassword);
                 if (role != null) {
@@ -65,10 +60,10 @@ public class Main {
                         // CustomerMenu();
                     } else if ("vendor".equals(role)) {
                         System.out.println("Logged in as vendor");
-                        //Vendor.vendorMenu(currentUser); // Pass the current user to vendorMenu
+                        Vendor.vendorMenu(currentUser); // Pass the current user to vendorMenu
                     } else if ("delivery".equals(role)) {
                         System.out.println("Logged in as delivery runner");
-                        // DeliveryMenu();
+                        DeliveryRunner.deliveryMenu(currentUser);
                     }
                 } else {
                     System.out.println("Invalid credentials. Please try again.");
@@ -76,7 +71,6 @@ public class Main {
             }
         }
     }
-
 
     private static String userLogin(String username, String password) {
         try (BufferedReader br = new BufferedReader(new FileReader(CREDENTIALS_FILE))) {
