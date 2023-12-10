@@ -1,20 +1,17 @@
-import java.util.Scanner;
-
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-
-import java.io.IOException;
-
-import java.io.File;
 import java.io.*;
-
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
 
 
 public class Customer {
-    private static final String TASK_FILE_PATH = "C:\\Users\\lorde\\IdeaProjects\\OODJAssignment\\src\\Task.txt";
 
+    private static final String TASK_FILE_PATH = "C:\\Users\\lorde\\IdeaProjects\\OODJAssignment\\src\\customer files\\c.Tasks.txt";
+    private static final String MENU_FILE_PATH = "C:\\Users\\lorde\\IdeaProjects\\OODJAssignment\\src\\customer files\\c.Menu.txt";
+    private static final String ORDER_HISTORY_FILE_PATH = "C:\\Users\\lorde\\IdeaProjects\\OODJAssignment\\src\\customer files\\c.OrderHistory.txt";
     public static void Menu() {
         Scanner scanner = new Scanner(System.in);
+
 
         while (true) {
             System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
@@ -32,6 +29,7 @@ public class Customer {
             System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 
             int choice = scanner.nextInt();
+            scanner.nextLine();
 
             switch (choice) {
                 case 1:
@@ -71,349 +69,232 @@ public class Customer {
     }
     //Allows user to view menu
     private static void viewMenu() {
-        String ORDERS_FILE_PATH = "C:\\Users\\lorde\\IdeaProjects\\OODJAssignment\\src\\orders.txt";
-        try {
-            File ordersFile = new File(ORDERS_FILE_PATH);
-
-            if (ordersFile.exists()) {
-                Scanner ordersScanner = new Scanner(ordersFile);
-
-                System.out.println("Current Menu:");
-
-                while (ordersScanner.hasNextLine()) {
-                    String order = ordersScanner.nextLine();
-                    System.out.println(order);
-                }
-
-                ordersScanner.close();
-            } else {
-                System.out.println("No orders available.");
+        try (BufferedReader reader = new BufferedReader(new FileReader(MENU_FILE_PATH))) {
+            String line;
+            while ((line = reader.readLine()) !=null){
+                System.out.println(line);
             }
-        } catch (FileNotFoundException e) {
-            System.out.println("Orders file not found.");
-
+        }   catch (IOException e){
+            e.printStackTrace();
         }
     }
     //Allows user to read customer review
-    private static void readReview(){
-
-    }
+    private static void readReview(){}
     //Allows user to place order
-    private static void placeOrder(){
-        String CUSTOMER_ORDERS_FILE_PATH = "C:\\Users\\lorde\\IdeaProjects\\OODJAssignment\\src\\customer_orders.txt";
-        String TASKS_FILE_PATH = "C:\\Users\\lorde\\IdeaProjects\\OODJAssignment\\src\\Task.txt";
-        String MENU_FILE_PATH = "C:\\Users\\lorde\\IdeaProjects\\OODJAssignment\\src\\menu.txt";
-        try {
-            // Display options to the customer
-            System.out.println("Enter the number of the dish you want to order: ");
+    public static void placeOrder() {
+        Scanner scanner = new Scanner(System.in);
+        Map<String, String> menu = loadMenu();
 
-            // Take user input for the chosen option
-            Scanner scanner = new Scanner(System.in);
-            int selectedDishNumber = scanner.nextInt();
-
-            // Read the menu to get the selected dish
-            File menuFile = new File(MENU_FILE_PATH);
-            Scanner menuScanner = new Scanner(menuFile);
-
-            int dishCounter = 1;
-            String selectedDish = null;
-
-            while (menuScanner.hasNextLine()) {
-                selectedDish = menuScanner.nextLine();
-                if (dishCounter == selectedDishNumber) {
-                    break;
-                }
-                dishCounter++;
+        System.out.println("Меню заказа:");
+        try (BufferedReader reader = new BufferedReader(new FileReader(MENU_FILE_PATH))) {
+            String line;
+            while ((line = reader.readLine()) !=null){
+                System.out.println(line);
             }
+        }   catch (IOException e){
+            e.printStackTrace();
+        }
+        System.out.println("Введите название позиции для заказа: ");
+        String itemName = scanner.nextLine();
 
-            menuScanner.close();
-
-            // Write the selected dish to the customer's order file
-            FileWriter orderFileWriter = new FileWriter(CUSTOMER_ORDERS_FILE_PATH, true);
-            BufferedWriter bufferedWriter = new BufferedWriter(orderFileWriter);
-            bufferedWriter.write(selectedDish + "\n");
-            bufferedWriter.close();
-
-            // Write the selected dish to the tasks file
-            FileWriter tasksFileWriter = new FileWriter(TASKS_FILE_PATH, true);
-            BufferedWriter tasksBufferedWriter = new BufferedWriter(tasksFileWriter);
-            tasksBufferedWriter.write(selectedDish + "\n");
-            tasksBufferedWriter.close();
-
-            System.out.println("Order placed successfully.");
-
-        } catch (IOException e) {
-            System.out.println("An error occurred: " + e.getMessage());
-
+        if (!menu.containsKey(itemName)) {
+            System.out.println("Выбранная позиция не найдена в меню.");
+            return;
         }
 
+        System.out.println("Введите ваш ID: ");
+        String customerId = scanner.nextLine();
 
-    }
-    //Allows user to cancel order, if any
-    private static void cancelOrder(){
-        String ORDERS_FILE_PATH = "C:\\Users\\lorde\\IdeaProjects\\OODJAssignment\\src\\Task.txt";
+        System.out.println("Введите дату заказа (формат ММ/ДД/ГГГГ): ");
+        String orderDate = scanner.nextLine();
+
+        String price = menu.get(itemName);
+        String orderStatus = "в ожидании принятия";
+
         try {
-            File ordersFile = new File(ORDERS_FILE_PATH);
+            // Write to Task.txt
+            BufferedWriter taskWriter = new BufferedWriter(new FileWriter(TASK_FILE_PATH, true));
+            taskWriter.write(itemName + ", " + customerId + ", " + orderDate + ", " + price + ", " + orderStatus + "\n");
+            taskWriter.close();
 
-            if (ordersFile.exists()) {
-                // Display existing orders to the customer
-                System.out.println("Existing Orders:");
+            // Write to c.OrderHistory.txt
+            BufferedWriter historyWriter = new BufferedWriter(new FileWriter(ORDER_HISTORY_FILE_PATH, true));
+            historyWriter.write(itemName + ", " + customerId + ", " + orderDate + ", " + price + ", " + orderStatus + "\n");
+            historyWriter.close();
 
-                Scanner orderScanner = new Scanner(ordersFile);
-
-                int orderNumber = 1;
-
-                while (orderScanner.hasNextLine()) {
-                    String order = orderScanner.nextLine();
-                    System.out.println(orderNumber + ". " + order);
-                    orderNumber++;
-                }
-
-                // Ask the customer to enter the number of the order to cancel
-                System.out.println("Enter the number of the order you want to cancel: ");
-                Scanner scanner = new Scanner(System.in);
-                int selectedOrderNumber = scanner.nextInt();
-
-                // Remove the selected order from the orders file
-                File tempFile = new File("temp.txt");
-                BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
-
-                Scanner orderScanner2 = new Scanner(ordersFile);
-                int orderCounter = 1;
-
-                while (orderScanner2.hasNextLine()) {
-                    String order = orderScanner2.nextLine();
-                    if (orderCounter != selectedOrderNumber) {
-                        writer.write(order + "\n");
-                    }
-                    orderCounter++;
-                }
-
-                writer.close();
-                orderScanner2.close();
-
-                // Replace the original file with the temporary file
-                ordersFile.delete();
-                tempFile.renameTo(ordersFile);
-
-                System.out.println("Order canceled successfully.");
-            } else {
-                System.out.println("No existing orders to cancel.");
-            }
-        } catch (FileNotFoundException e) {
-            System.out.println("Orders file not found.");
+            System.out.println("Заказ успешно добавлен и записан в историю заказов!");
         } catch (IOException e) {
-            System.out.println("An error occurred: " + e.getMessage());
+            System.out.println("Ошибка при записи в файлы задач или истории заказов.");
+        }
+    }
+
+    private static Map<String, String> loadMenu() {
+        Map<String, String> menu = new HashMap<>();
+        try {
+            File menuFile = new File(MENU_FILE_PATH);
+            Scanner fileScanner = new Scanner(menuFile);
+
+            while (fileScanner.hasNextLine()) {
+                String line = fileScanner.nextLine();
+                String[] parts = line.split(", ");
+                if (parts.length == 2) {
+                    menu.put(parts[0], parts[1]);
+                }
+            }
+            fileScanner.close();
+        } catch (IOException e) {
+            System.out.println("Файл меню не найден.");
+        }
+        return menu;
+    }
+
+    //Allows user to cancel order, if any
+    public static void cancelOrder() {
+        try {
+            File taskFile = new File(TASK_FILE_PATH);
+            File tempFile = new File(taskFile.getAbsolutePath() + ".tmp");
+
+            Scanner scanner = new Scanner(System.in);
+            System.out.println("Введите ID заказа для отмены: ");
+            String orderId = scanner.nextLine();
+
+            BufferedReader reader = new BufferedReader(new FileReader(taskFile));
+            BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
+
+            String currentLine;
+            boolean found = false;
+
+            while ((currentLine = reader.readLine()) != null) {
+                String trimmedLine = currentLine.trim();
+                if (trimmedLine.contains(orderId)) {
+                    found = true;
+                    continue; // Skip the line that matches the order ID
+                }
+                writer.write(currentLine + System.getProperty("line.separator"));
+            }
+
+
+            writer.close();
+            reader.close();
+
+            if (!found) {
+                System.out.println("Заказ с таким ID не найден.");
+                if (!tempFile.delete()) {
+                    System.out.println("Не удалось удалить временный файл.");
+                }
+                return;
+            }
+
+            // Delete the original file and rename the temp file to the original file name
+            if (!taskFile.delete()) {
+                System.out.println("Не удалось удалить оригинальный файл задач.");
+                return;
+            }
+            
+
+            if (!tempFile.renameTo(taskFile)) {
+                System.out.println("Не удалось переименовать временный файл в оригинальный файл задач.");
+            } else {
+                System.out.println("Заказ успешно отменен.");
+            }
+
+        } catch (IOException ex) {
+            System.out.println("Ошибка при обработке файла: " + ex.getMessage());
         }
     }
     //Allows user to check order status, if any
-    private static void chkOrderStatus() {
-        String ORDERS_FILE_PATH = "C:\\Users\\lorde\\IdeaProjects\\OODJAssignment\\src\\Task.txt";
+    public static void chkOrderStatus() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Введите ID заказа для проверки статуса: ");
+        String orderId = scanner.nextLine();
+
         try {
-            File ordersFile = new File(ORDERS_FILE_PATH);
+            File taskFile = new File(TASK_FILE_PATH);
+            Scanner fileScanner = new Scanner(taskFile);
+            boolean found = false;
 
-            if (ordersFile.exists()) {
-                // Display existing orders to the customer
-                System.out.println("Existing Orders:");
-
-                Scanner orderScanner = new Scanner(ordersFile);
-
-                int orderNumber = 1;
-
-                while (orderScanner.hasNextLine()) {
-                    String order = orderScanner.nextLine();
-                    System.out.println(orderNumber + ". " + order);
-                    orderNumber++;
-                }
-
-                // Ask the customer to enter the number of the order to check status
-                System.out.println("Enter the number of the order to check its status: ");
-                Scanner scanner = new Scanner(System.in);
-                int selectedOrderNumber = scanner.nextInt();
-
-                // Check the status of the selected order
-                String orderStatus = getOrderStatus(selectedOrderNumber);
-                if (orderStatus != null) {
-                    System.out.println("Order Status: " + orderStatus);
-                } else {
-                    System.out.println("Invalid order number. Please try again.");
-                }
-
-                orderScanner.close();
-            } else {
-                System.out.println("No existing orders to check.");
-            }
-        } catch (FileNotFoundException e) {
-            System.out.println("Orders file not found.");
-        } catch (IOException e) {
-            System.out.println("An error occurred: " + e.getMessage());
-        }
-    }
-
-    private static String getOrderStatus(int selectedOrderNumber) {
-        String ORDERS_FILE_PATH = "C:\\Users\\lorde\\IdeaProjects\\OODJAssignment\\src\\Task.txt";
-        try {
-            File ordersFile = new File(ORDERS_FILE_PATH);
-            Scanner orderScanner = new Scanner(ordersFile);
-
-            int orderCounter = 1;
-
-            while (orderScanner.hasNextLine()) {
-                String order = orderScanner.nextLine();
-                if (orderCounter == selectedOrderNumber) {
-                    // Assuming the order status is stored as the last element in the order details
-                    String[] orderDetails = order.split(",");
-                    if (orderDetails.length > 0) {
-                        return orderDetails[orderDetails.length - 1].trim();
+            while (fileScanner.hasNextLine()) {
+                String line = fileScanner.nextLine();
+                // Assuming the order format is: itemName, customerId, orderDate, price, status
+                if (line.contains(orderId)) {
+                    String[] orderDetails = line.split(", ");
+                    if (orderDetails.length >= 5) {
+                        String status = orderDetails[4];
+                        System.out.println("Статус заказа: " + status);
+                        found = true;
+                        break;
                     }
                 }
-                orderCounter++;
             }
 
-            orderScanner.close();
+            if (!found) {
+                System.out.println("Заказ с таким ID не найден.");
+            }
+
+            fileScanner.close();
         } catch (FileNotFoundException e) {
-            System.out.println("Orders file not found.");
+            System.out.println("Файл задач не найден.");
         }
-
-        return null;
     }
-
     //Allows user to check personal ordering history
-    private static void chkOrderHistory() {
-        String ORDERS_FILE_PATH = "C:\\Users\\lorde\\IdeaProjects\\OODJAssignment\\src\\Task.txt";
+    public static void chkOrderHistory() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Введите ваш ID клиента для просмотра истории заказов: ");
+        String customerId = scanner.nextLine();
+
         try {
-            File ordersFile = new File(ORDERS_FILE_PATH);
+            File historyFile = new File(ORDER_HISTORY_FILE_PATH);
+            Scanner fileScanner = new Scanner(historyFile);
+            boolean hasOrders = false;
 
-            if (ordersFile.exists()) {
-                // Display order history to the customer
-                System.out.println("Order History:");
-
-                Scanner orderScanner = new Scanner(ordersFile);
-
-                while (orderScanner.hasNextLine()) {
-                    String order = orderScanner.nextLine();
-                    System.out.println(order);
+            System.out.println("История заказов для клиента с ID: " + customerId);
+            while (fileScanner.hasNextLine()) {
+                String line = fileScanner.nextLine();
+                // Assuming the order format is: itemName, customerId, orderDate, price, status
+                if (line.contains(customerId)) {
+                    System.out.println(line);
+                    hasOrders = true;
                 }
-
-                orderScanner.close();
-            } else {
-                System.out.println("No order history available.");
             }
+
+            if (!hasOrders) {
+                System.out.println("История заказов не найдена для данного клиента.");
+            }
+
+            fileScanner.close();
         } catch (FileNotFoundException e) {
-            System.out.println("Orders file not found.");
-        } catch (IOException e) {
-            System.out.println("An error occurred: " + e.getMessage());
+            System.out.println("Файл истории заказов не найден.");
         }
     }
+    private static void balance(){}
     //Allows user to check transaction history
-    private static void chkTransHistory() {
+    public static void checkTransactionHistory(String customerId) {
         try {
-            File transactionsFile = new File("C:\\Users\\lorde\\IdeaProjects\\OODJAssignment\\src\\transactions.txt");
+            File walletsFile = new File("path/to/wallets.txt");
+            Scanner scanner = new Scanner(walletsFile);
+            boolean found = false;
 
-            if (transactionsFile.exists()) {
-                // Display transaction history to the customer
-                System.out.println("Transaction History:");
-
-                Scanner transactionScanner = new Scanner(transactionsFile);
-
-                while (transactionScanner.hasNextLine()) {
-                    String transaction = transactionScanner.nextLine();
-                    System.out.println(transaction);
-                }
-
-                transactionScanner.close();
-            } else {
-                System.out.println("No transaction history available.");
-            }
-        } catch (FileNotFoundException e) {
-            System.out.println("Transactions file not found.");
-        } catch (IOException e) {
-            System.out.println("An error occurred: " + e.getMessage());
-        }
-    }
-    //Allows user to provide a review for each order
-    private static void reviewEachOrder(){
-
-    }
-    //Allows user to reorder same ordered items from history
-    private static void reorder() {
-        String ORDER_HISTORY_FILE_PATH = "C:\\Users\\lorde\\IdeaProjects\\OODJAssignment\\src\\orderHistory.txt";
-        String MENU_FILE_PATH = "C:\\Users\\lorde\\IdeaProjects\\OODJAssignment\\src\\orders.txt";
-        try {
-            File orderHistoryFile = new File(ORDER_HISTORY_FILE_PATH);
-            File menuFile = new File(MENU_FILE_PATH);
-
-            if (orderHistoryFile.exists() && menuFile.exists()) {
-                // Display order history to the customer
-                System.out.println("Order History:");
-
-                Scanner orderHistoryScanner = new Scanner(orderHistoryFile);
-
-                int orderNumber = 1;
-
-                while (orderHistoryScanner.hasNextLine()) {
-                    String order = orderHistoryScanner.nextLine();
-                    System.out.println(orderNumber + ". " + order);
-                    orderNumber++;
-                }
-
-                // Ask the customer to enter the number of the order to reorder
-                System.out.println("Enter the number of the order to reorder: ");
-                Scanner scanner = new Scanner(System.in);
-                int selectedOrderNumber = scanner.nextInt();
-
-                // Reorder items from the selected order
-                Scanner orderHistoryScanner2 = new Scanner(orderHistoryFile);
-
-                int orderCounter = 1;
-
-                while (orderHistoryScanner2.hasNextLine()) {
-                    String order = orderHistoryScanner2.nextLine();
-                    if (orderCounter == selectedOrderNumber) {
-                        // Extract items from the selected order and add them to the current order file
-                        reorderItems(order, menuFile);
-                        System.out.println("Items reordered successfully.");
-                        return;
-                    }
-                    orderCounter++;
-                }
-
-                System.out.println("Invalid order number. Please try again.");
-
-                orderHistoryScanner2.close();
-            } else {
-                System.out.println("No order history or menu available.");
-            }
-        } catch (FileNotFoundException e) {
-            System.out.println("Order history or menu file not found.");
-        } catch (IOException e) {
-            System.out.println("An error occurred: " + e.getMessage());
-        }
-    }
-
-    private static void reorderItems(String order, File menuFile) throws IOException {
-        String CURRENT_ORDER_FILE_PATH = "C:\\Users\\lorde\\IdeaProjects\\OODJAssignment\\src\\customer_orders.txt";
-        // Assuming each line in the order history file represents a list of item numbers separated by commas
-        String[] itemNumbers = order.split(",");
-        BufferedWriter writer = new BufferedWriter(new FileWriter(CURRENT_ORDER_FILE_PATH));
-
-        // Read the menu file and add the selected items to the current order file
-        Scanner menuScanner = new Scanner(menuFile);
-
-        while (menuScanner.hasNextLine()) {
-            String menuItem = menuScanner.nextLine();
-            int menuItemNumber = Integer.parseInt(menuItem.split("\\.")[0].trim());
-
-            for (String itemNumber : itemNumbers) {
-                if (menuItemNumber == Integer.parseInt(itemNumber.trim())) {
-                    writer.write(menuItem + "\n");
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine();
+                if (line.startsWith(customerId)) {
+                    System.out.println("История транзакций для " + customerId + ":");
+                    System.out.println(line.substring(line.indexOf(";") + 1)); // Assuming transactions are stored after a semicolon
+                    found = true;
                     break;
                 }
             }
+
+            if (!found) {
+                System.out.println("История транзакций не найдена для данного ID клиента.");
+            }
+
+            scanner.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("Файл wallets.txt не найден.");
         }
-
-        writer.close();
-        menuScanner.close();
     }
-
+    //Allows user to provide a review for each order
+    private static void reviewEachOrder(){}
+    //Allows user to reorder same ordered items from history
+    private static void reorder() {}
 }
