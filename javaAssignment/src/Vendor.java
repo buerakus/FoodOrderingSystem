@@ -1,17 +1,9 @@
-package govnogovno;
-
-import java.io.*;
-import java.io.File;
-import java.util.Scanner;
-import java.util.ArrayList;
-import java.util.List;
-
-
 public class Vendor {
 
     private static final String TASK_FILE_PATH = "orders.txt";
     private static final Scanner scanner = new Scanner(System.in);
     private static final String TASK_FILE_PATHVC = "ordersvc.txt";
+    private static final String REVIEWS_FILE_PATH = "reviews.txt";
     
     public static void vendorMenu(User currentUser) {
         
@@ -56,7 +48,7 @@ public class Vendor {
                     updateOrderStatus(currentUser);
                     break;
                 case 7:
-                    readCReview();
+                    readCReview(currentUser);
                     break;
                 case 8:
                     revenueDash();
@@ -153,7 +145,7 @@ public class Vendor {
     public static void deleteItems(User currentUser) {
     String vendorPrefix = currentUser.getUsername(); // Vendor's username from the currentUser object
     Scanner scanner = new Scanner(System.in);
-    System.out.println("Введите ID удаляемого товара:");
+    System.out.println("Enter the ID of the product to be deleted:");
     String itemId = scanner.nextLine();
 
     List<String> tasks = new ArrayList<>();
@@ -185,15 +177,15 @@ public class Vendor {
                     writer.newLine();
                 }
             }
-            System.out.println("Товар успешно удален.");
+            System.out.println("Product deleted successfully.");
         } else {
-            System.out.println("Товар с указанным ID не найден или не принадлежит вам.");
+            System.out.println("The product with the specified ID was not found or does not belong to you.");
         }
 
     } catch (FileNotFoundException e) {
-        System.out.println("Файл задач не найден.");
+        System.out.println("Task file not found.");
     } catch (IOException e) {
-        System.out.println("Ошибка при обновлении файла задач.");
+        System.out.println("Error updating task file.");
     }
 }
 
@@ -276,6 +268,7 @@ public class Vendor {
     }
 }
 
+
    
     public static void readCReview(User currentUser) {
     String vendorPrefix = currentUser.getUsername(); // Vendor's username from currentUser object
@@ -306,6 +299,7 @@ public class Vendor {
         System.out.println("Error reading the feedback file.");
     }
 }
+
     private static void revenueDash() {
         
     }
@@ -362,6 +356,7 @@ public class Vendor {
         System.out.println("Error updating task file.");
     }
 }
+
     
     
 }
