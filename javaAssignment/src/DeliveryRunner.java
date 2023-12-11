@@ -113,7 +113,7 @@ public class DeliveryRunner {
             System.out.println("1. Accept Order");
             System.out.println("2. Decline Order");
             System.out.println("3. Exit");
-            System.out.println("-----------------------------------------------------------");
+            System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 
             int choice = scanner.nextInt();
             scanner.nextLine();
@@ -238,9 +238,8 @@ public class DeliveryRunner {
             File courierTasksFile = new File(COURIER_TASKS_FILE_PATH);
             Scanner fileScanner = new Scanner(courierTasksFile);
 
-            int rowNum = 1; // Порядковый номер начинается с 1
+            int rowNum = 1;
 
-            // Печать заголовка таблицы
             System.out.println("----------------------------------------------------------------------------------------------------------");
             System.out.printf("| %-6s | %-20s | %-12s | %-12s | %-12s | %-20s |\n", "№", "Position", "CustomerID", "Order Date", "Delivery Price", "Status");
             System.out.println("----------------------------------------------------------------------------------------------------------");
