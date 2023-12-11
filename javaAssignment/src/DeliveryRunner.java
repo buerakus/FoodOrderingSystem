@@ -10,6 +10,7 @@ import java.util.Date;
 
 
 public class DeliveryRunner {
+    private static final String ORDERS_FILE_PATH = "C:\\Users\\Dimash\\Desktop\\Ordersvc.txt";
     private static final String TASK_FILE_PATH = "C:\\Users\\Dimash\\Desktop\\Task.txt";
     private static final String COURIER_TASKS_FILE_PATH = "C:\\Users\\Dimash\\Desktop\\CourierTasks.txt";
     private static final String CUSTOMER_FEEDBACK_PATH = "C:\\Users\\Dimash\\Desktop\\CustomerFeedback.txt";
@@ -19,6 +20,7 @@ public class DeliveryRunner {
             System.out.println("Access denied. Only delivery runner can access this menu.");
             return; // Exit the method if the user is not a delivery runner
         }
+        processOrders();
 
         Scanner scanner = new Scanner(System.in);
 
@@ -57,6 +59,7 @@ public class DeliveryRunner {
                     break;
                 case 0:
                     System.out.println("returning to the registration menu...");
+
                     return;
                 default:
                     System.out.println("Invalid choice. Please try again.");
@@ -65,6 +68,39 @@ public class DeliveryRunner {
     }
 
 
+
+    private static void processOrders() {
+        try {
+            File ordersvcFile = new File(ORDERS_FILE_PATH);
+            Scanner fileScanner = new Scanner(ordersvcFile);
+
+            FileWriter taskFileWriter = new FileWriter(TASK_FILE_PATH, true); // Для добавления данных в конец файла
+
+            while (fileScanner.hasNextLine()) {
+                String line = fileScanner.nextLine();
+                String[] columns = line.split(", ");
+
+                // Проверка условий Pickup Method = "Delivery" и Status = "pending acceptance"
+                if (columns.length >= 9 && columns[7].trim().equals("Delivery") && columns[8].trim().equals("pending acceptance")) {
+                    String itemName = columns[4];
+                    String customerID = columns[2];
+                    String orderDate = columns[5];
+                    double price = Double.parseDouble(columns[6]);
+                    double deliveryPrice = price * 0.25;
+                    String status = "pending acceptance";
+
+                    // Writing data to a file Task.txt
+                    taskFileWriter.write(itemName + ", " + customerID + ", " + orderDate + ", " + deliveryPrice + ", " + status + "\n");
+                }
+            }
+
+            fileScanner.close();
+            taskFileWriter.close();
+
+        } catch (IOException e) {
+            System.out.println("An error occurred while processing files.");
+        }
+    }
 
 
 //////////////////////////////////////////////////VIEW TASK/////////////////////////////////////////////////////////////
