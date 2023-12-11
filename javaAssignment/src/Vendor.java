@@ -31,17 +31,18 @@ public class Vendor {
         while (true) {
             System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
             System.out.println("Choose action:");
-            System.out.println("1. create item");
-            System.out.println("2. read item");
-            System.out.println("3. update item");
-            System.out.println("4. delete item");
-            System.out.println("5. accept/cancel order");
-            System.out.println("6. update order status"); 
-            System.out.println("6. check order history "); 
-            System.out.println("7. read customer review");
-            System.out.println("8. revenue dashboard");
+            System.out.println("1. Create Item");
+            System.out.println("2. Read Item");
+            System.out.println("3. Update Item");
+            System.out.println("4. Delete Item");
+            System.out.println("5. Accept/Cancel Order");
+            System.out.println("6. Update Order Status"); 
+            System.out.println("6. Check Order History "); 
+            System.out.println("7. Read Customer Review");
+            System.out.println("8. Revenue Dashboard");
             System.out.println("0. Exit.");
             System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+
 
             int choiceV = scanner.nextInt();
             scanner.nextLine();
@@ -378,7 +379,7 @@ public class Vendor {
 
                 if (orderDate != null && isDateWithinRange(orderDate, startDate, endDate)) {
                     double price = Double.parseDouble(columns[6]); //price - fourth column
-                    totalIncome += price;
+                    totalIncome += price * 0.75;
                 }
             }
 
