@@ -200,60 +200,112 @@ public class Vendor {
 
     
     public static void acceptCancelOrder(User currentUser) {
-    String vendorPrefix = currentUser.getUsername(); // Vendor's username from the currentUser object
+    String vendorPrefix = currentUser.getUsername(); // Vendor's username from currentUser object
     Scanner scanner = new Scanner(System.in);
-    System.out.println("Введите ID заказа для принятия/отклонения:");
-    String orderId = scanner.nextLine();
 
-    List<String> tasks = new ArrayList<>();
-    boolean orderUpdated = false;
+    List<String> orders = new ArrayList<>();
+    boolean orderFound = false;
 
     try {
-        File taskFile = new File(TASK_FILE_PATHVC);
-        Scanner fileScanner = new Scanner(taskFile);
+        File ordersFile = new File(TASK_FILE_PATHVC);
+        Scanner fileScanner = new Scanner(ordersFile);
 
-        // Read all tasks from the file
+        // Display all orders for the current vendor
+        System.out.println("Orders for vendor: " + vendorPrefix);
+        System.out.println("----------------------------------------------------------------------------------------------------------");
+        System.out.println("| Order ID | Vendor Name | Customer ID | Item ID | Item Name | Order Date | Price | Pickup Method | Status |");
+        System.out.println("----------------------------------------------------------------------------------------------------------");
+        
         while (fileScanner.hasNextLine()) {
             String line = fileScanner.nextLine();
             String[] columns = line.split(",");
-
-            // Check if the line corresponds to the vendor and the order ID
-            if (columns[1].trim().equals(vendorPrefix) && columns[2].trim().equals(orderId)) {
-                System.out.println("Заказ найден. Принять заказ? (yes/no):");
-                String decision = scanner.nextLine().trim().toLowerCase();
-                String newStatus = decision.equals("yes") ? "заказ принят" : "заказ отклонен";
-                columns[columns.length - 1] = newStatus; // Update the status
-                line = String.join(",", columns);
-                orderUpdated = true;
+            if (columns[1].trim().equals(vendorPrefix)) {
+                // Display the order
+                System.out.printf("| %-8s | %-12s | %-11s | %-7s | %-9s | %-10s | %-5s | %-13s | %-6s | \n",
+                                  columns[0].trim(), columns[1].trim(), columns[2].trim(), columns[3].trim(), 
+                                  columns[4].trim(), columns[5].trim(), "RM" + columns[6].trim(), columns[7].trim(), columns[8].trim());
+                orderFound = true;
             }
-            tasks.add(line);
+            orders.add(line); // Add all lines to the orders list
         }
+        
         fileScanner.close();
+        System.out.println("----------------------------------------------------------------------------------------------------------");
+        
+        if (!orderFound) {
+            System.out.println("No orders found for vendor: " + vendorPrefix);
+            return; // No orders found for this vendor, exit the method
+        }
 
-        // If the order was updated, write the updated list back to the file
-        if (orderUpdated) {
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(TASK_FILE_PATH, false))) {
-                for (String task : tasks) {
-                    writer.write(task);
+        // Prompt the vendor for the order ID to accept/reject
+        System.out.println("Enter order ID to accept/reject:");
+        String orderId = scanner.nextLine();
+        boolean orderFoundAndUpdated = false;
+
+        // Iterate through the list to find and update the status of the order
+        for (int i = 0; i < orders.size(); i++) {
+            String line = orders.get(i);
+            String[] columns = line.split(",");
+            if (columns[0].trim().equals(orderId) && columns[1].trim().equals(vendorPrefix)) {
+                System.out.println("The order has been found. Accept an order? (yes/no):");
+                String decision = scanner.nextLine().trim().toLowerCase();
+                String newStatus = decision.equals("yes") ? "order accepted" : "order canceled";
+                columns[columns.length - 1] = newStatus; // Update the status
+                orders.set(i, String.join(",", columns)); // Update the line in the orders list
+                orderFoundAndUpdated = true;
+            }
+        }
+
+        // If the order was found and updated, write the updated list back to the file
+        if (orderFoundAndUpdated) {
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(TASK_FILE_PATHVC, false))) {
+                for (String order : orders) {
+                    writer.write(order);
                     writer.newLine();
                 }
             }
-            System.out.println("Статус заказа обновлен.");
+            System.out.println("Order status updated.");
         } else {
-            System.out.println("Заказ с указанным ID не найден или не принадлежит вам.");
+            System.out.println("The order with the specified ID was not found or does not belong to you.");
         }
 
     } catch (FileNotFoundException e) {
-        System.out.println("Файл задач не найден.");
+        System.out.println("Order file not found.");
     } catch (IOException e) {
-        System.out.println("Ошибка при обновлении файла задач.");
+        System.out.println("Error updating order file.");
     }
 }
 
    
-    private static void readCReview() {
-        
+    public static void readCReview(User currentUser) {
+    String vendorPrefix = currentUser.getUsername(); // Vendor's username from currentUser object
+
+    try (BufferedReader reader = new BufferedReader(new FileReader(REVIEWS_FILE_PATH))) {
+        String line;
+        boolean foundReviews = false;
+
+        System.out.println("Reviews for " + vendorPrefix + ":");
+        while ((line = reader.readLine()) != null) {
+            String[] reviewDetails = line.split("/");
+
+            // Check if the review is for the current vendor
+            if (reviewDetails[0].trim().equals(vendorPrefix)) {
+                // Display review details
+                System.out.println("Order ID: " + reviewDetails[1].trim() + ", Customer: " + reviewDetails[3].trim() + ", Review: " + reviewDetails[4].trim());
+                foundReviews = true;
+            }
+        }
+
+        if (!foundReviews) {
+            System.out.println("No reviews found.");
+        }
+
+    } catch (FileNotFoundException e) {
+        System.out.println("Review file not found.");
+    } catch (IOException e) {
+        System.out.println("Error reading the feedback file.");
     }
+}
     private static void revenueDash() {
         
     }
@@ -261,7 +313,7 @@ public class Vendor {
     public static void updateOrderStatus(User currentUser) {
     String vendorPrefix = currentUser.getUsername(); // Vendor's username from the currentUser object
     Scanner scanner = new Scanner(System.in);
-    System.out.println("Введите ID заказа, который готов:");
+    System.out.println("Enter order's ID, to change it to 'pending acceptance':");
     String orderId = scanner.nextLine();
 
     List<String> tasks = new ArrayList<>();
@@ -276,10 +328,13 @@ public class Vendor {
             String line = fileScanner.nextLine();
             String[] columns = line.split(",");
 
-            // Trim spaces and check if the line corresponds to the vendor and the order ID
-            if (columns[1].trim().equals(vendorPrefix) && columns[2].trim().equals(orderId)) {
-                if ("заказ принят".equals(columns[columns.length - 1].trim())) {
-                    columns[columns.length - 1] = "заказ готов";  // Update the status to "order ready"
+            // Check if the line corresponds to the order ID and the vendor
+            if (columns[0].trim().equals(orderId) && columns[1].trim().equals(vendorPrefix)) {
+                // Assuming the last column is the status
+                String currentStatus = columns[columns.length - 1].trim();
+                if ("order ready".equals(currentStatus)) {
+                    // Update the status to "заказ готов"
+                    columns[columns.length - 1] = "pending acceptance";
                     line = String.join(",", columns);
                     orderUpdated = true;
                 }
@@ -296,15 +351,15 @@ public class Vendor {
                     writer.newLine();
                 }
             }
-            System.out.println("Статус заказа обновлен на 'заказ готов'.");
+            System.out.println("Order updated to 'pending acceptance'.");
         } else {
-            System.out.println("Заказ с указанным ID не найден или не принадлежит вам.");
+            System.out.println("The order with the specified ID was not found or does not belong to you.");
         }
 
     } catch (FileNotFoundException e) {
-        System.out.println("Файл задач не найден.");
+        System.out.println("Task file not found.");
     } catch (IOException e) {
-        System.out.println("Ошибка при обновлении файла задач.");
+        System.out.println("Error updating task file.");
     }
 }
     
