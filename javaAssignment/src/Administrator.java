@@ -11,7 +11,7 @@ import java.io.PrintWriter;
 import java.io.BufferedReader;
 import java.util.InputMismatchException;
 
-public class Admin {
+public class Administrator {
     private static final String CREDENTIALS_FILE_PATH = "C:\\Users\\lorde\\IdeaProjects\\OODJAssignment\\src\\accounts.txt";
     public static void vesp() {
 
@@ -366,20 +366,20 @@ public class Admin {
     public static void addBalanceToCustomerWallet() {
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("Введите ID клиента для добавления баланса: ");
+        System.out.println("Type ID of a client whose balance you wanna top-up: ");
         String customerId = scanner.nextLine();
 
-        System.out.println("Введите сумму для добавления к балансу: ");
+        System.out.println("Input the amount: ");
         double amountToAdd;
         try {
             amountToAdd = scanner.nextDouble();
         } catch (InputMismatchException e) {
-            System.out.println("Некорректный ввод суммы. Операция отменена.");
+            System.out.println("Incorrect input. Operation canceled.");
             return;
         }
 
         if (amountToAdd <= 0) {
-            System.out.println("Сумма должна быть положительной. Операция отменена.");
+            System.out.println("Input amount should be positive. Operation canceled.");
             return;
         }
 
@@ -413,7 +413,7 @@ public class Admin {
             }
 
             if (!customerFound) {
-                System.out.println("Клиент с ID " + customerId + " не найден.");
+                System.out.println("Client with ID " + customerId + " was not found.");
                 tempFile.delete();
                 return;
             }
@@ -422,27 +422,29 @@ public class Admin {
             reader.close();
 
             if (!walletsFile.delete()) {
-                System.out.println("Не удалось удалить оригинальный файл кошельков.");
+                System.out.println("The original wallet file could not be deleted.");
                 return;
             }
 
             if (!tempFile.renameTo(walletsFile)) {
-                System.out.println("Не удалось обновить файл кошельков.");
+                System.out.println("Failed to update wallet file.");
             } else {
-                System.out.println("Баланс клиента обновлен.");
+                System.out.println("Client's credit was updated.");
             }
 
         } catch (IOException e) {
-            System.out.println("Ошибка при обновлении баланса: " + e.getMessage());
+            System.out.println("An error occurred while updating the credit: " + e.getMessage());
         } catch (NumberFormatException e) {
-            System.out.println("Ошибка при чтении баланса клиента.");
+            System.out.println("An error occurred while reading the client's balance.");
         }
     }
+
+    ////  RECEIPT GENERATOR  //////////////////////////////////////
     private static final String ORDER_HISTORY_FILE_PATH = "C:\\Users\\lorde\\IdeaProjects\\OODJAssignment\\src\\customer files\\c.OrderHistory.txt";
     private static final String TRANS_RECEIPTS_FILE_PATH = "C:\\Users\\lorde\\IdeaProjects\\OODJAssignment\\src\\customer files\\c.TransactionHistory.txt";
     public static void generateTransactionReceipts() {
         Scanner inputScanner = new Scanner(System.in);
-        System.out.println("Enter Customer ID for which to generate transaction receipts:");
+        System.out.println("Enter Customer ID to generate transaction receipts:");
         String customerId = inputScanner.nextLine();
 
         try {
