@@ -64,10 +64,10 @@ public class DeliveryRunner {
         }
     }
 
-    
-    
-    
-//////////////////////////////////////////////////VIEW TASK/////////////////////////////////////////////////////////////    
+
+
+
+//////////////////////////////////////////////////VIEW TASK/////////////////////////////////////////////////////////////
     private static void viewTask() {
         try {
             File taskFile = new File(TASK_FILE_PATH);
@@ -75,19 +75,17 @@ public class DeliveryRunner {
 
             int rowNum = 1;
 
-            // Печать заголовка таблицы
             // Printing the table header
-            System.out.println("----------------------------------------------------------------------------------------------------");
-            System.out.printf("| %-10s | %-20s | %-6s | %-12s | %-12s | %-20s |\n", "№", "Позиция", "ID", "Дата заказа", "Цена", "Статус");
-            System.out.println("----------------------------------------------------------------------------------------------------");
+            System.out.println("----------------------------------------------------------------------------------------------------------");
+            System.out.printf("| %-6s | %-20s | %-12s | %-12s | %-12s | %-20s |\n", "№", "Position", "CustomerID", "Order Date", "Delivery Price", "Status");
+            System.out.println("----------------------------------------------------------------------------------------------------------");
 
-            // Чтение и печать данных из файла Task.txt в виде таблицы
             // Reading and printing data from the Task.txt file in the form of a table
             while (fileScanner.hasNextLine()) {
                 String line = fileScanner.nextLine();
                 String[] columns = line.split(", ");
 
-                System.out.printf("| %-10s | %-20s | %-6s | %-12s | RM%-10s | %-20s |\n",
+                System.out.printf("| %-6s | %-20s | %-12s | %-12s | RM%-12s | %-20s |\n",
                         rowNum, columns[0], columns[1], columns[2], columns[3], columns[4]);
 
                 rowNum++;
@@ -102,11 +100,11 @@ public class DeliveryRunner {
 
 
 
-    
-    
-    
-////////////////////////////////////////////////ACCEPT or DECLINE TASK////////////////////////////////////////////////// 
-    
+
+
+
+////////////////////////////////////////////////ACCEPT or DECLINE TASK//////////////////////////////////////////////////
+
     private static void  acceptOrRejectTask(User currentUser) {
         Scanner scanner = new Scanner(System.in);
 
@@ -143,16 +141,16 @@ public class DeliveryRunner {
 
             int rowNum = 1;
             System.out.println("----------------------------------------------------------------------------------------------------------");
-            System.out.printf("| %-10s | %-20s | %-6s | %-12s | %-12s | %-20s |\n", "№", "Позиция", "ID", "Дата заказа", "Цена", "Статус");
+            System.out.printf("| %-6s | %-20s | %-12s | %-12s | %-12s | %-20s |\n", "№", "Position", "CustomerID", "Order Date", "Delivery Price", "Status");
             System.out.println("----------------------------------------------------------------------------------------------------------");
+
             while (fileScanner.hasNextLine()) {
                 String line = fileScanner.nextLine();
                 String[] columns = line.split(", ");
 
-                // Печать данных каждой строки в таблице, если статус "в ожидании принятия" или "отменен"
                 // Printing the data of each row in the table if the status is "pending acceptance" or "canceled"
-                if (columns[4].equals("в ожидании принятия") || columns[4].equals("отклонен")) {
-                    System.out.printf("| %-10s | %-20s | %-6s | %-12s | RM%-11s | %-20s |\n",
+                if (columns[4].equals("pending acceptance") || columns[4].equals("canceled")) {
+                    System.out.printf("| %-6s | %-20s | %-12s | %-12s | RM%-12s | %-20s |\n",
                             rowNum, columns[0], columns[1], columns[2], columns[3], columns[4]);
                 }
 
@@ -180,8 +178,8 @@ public class DeliveryRunner {
                     String[] columns = line.split(", ");
 
                     if (currentTask == chosenTaskNumber) {
-                        // Записать выбранную задачу в файл курьера со статусом "принят"
-                        bufferedWriter.write(columns[0] + ", " + columns[1] + ", " + columns[2] + ", " + columns[3] + ", принят" + deliveryPrefix +"\n");
+                        // Записать выбранную задачу в файл курьера со статусом "accepted"
+                        bufferedWriter.write(columns[0] + ", " + columns[1] + ", " + columns[2] + ", " + columns[3] + ", accepted" + deliveryPrefix +"\n");
                         System.out.println("The task is recorded in the courier's personal file.");
                     }
 
@@ -191,7 +189,7 @@ public class DeliveryRunner {
                 bufferedWriter.close();
                 fileScanner.close();
 
-                // Удалить выбранную задачу из файла Task.txt и создать новую с статусом "принят"
+                // Удалить выбранную задачу из файла Task.txt и создать новую с статусом "accepted"
                 updateTaskFile(taskFile, chosenTaskNumber);
             } else {
                 System.out.println("An incorrect order number has been selected.");
@@ -214,10 +212,10 @@ public class DeliveryRunner {
             if (currentTask != chosenTaskNumber) {
                 newTaskData.append(line).append("\n");
             } else {
-                // Создать новую строку с статусом "принят"
+                // Создать новую строку с статусом "accepted"
                 String[] columns = line.split(", ");
                 newTaskData.append(columns[0]).append(", ").append(columns[1]).append(", ").append(columns[2])
-                        .append(", ").append(columns[3]).append(", принят\n");
+                        .append(", ").append(columns[3]).append(", accepted\n");
             }
 
             currentTask++;
@@ -244,7 +242,7 @@ public class DeliveryRunner {
 
             // Печать заголовка таблицы
             System.out.println("----------------------------------------------------------------------------------------------------------");
-            System.out.printf("| %-10s | %-15s | %-6s | %-12s | %-12s | %-20s |\n", "№", "Позиция", "ID", "Дата заказа", "Цена", "Статус");
+            System.out.printf("| %-6s | %-20s | %-12s | %-12s | %-12s | %-20s |\n", "№", "Position", "CustomerID", "Order Date", "Delivery Price", "Status");
             System.out.println("----------------------------------------------------------------------------------------------------------");
 
             // Чтение и печать данных из файла CourierTasks.txt в виде таблицы
@@ -252,9 +250,9 @@ public class DeliveryRunner {
                 String line = fileScanner.nextLine();
                 String[] columns = line.split(", ");
 
-                // Печать данных каждой строки в таблице, если статус "принят"
-                if (columns[4].trim().equals("принят") && columns[5].trim().equals(deliveryPrefix)) {
-                    System.out.printf("| %-10s | %-15s | %-6s | %-12s | RM%-11s | %-20s |\n",
+                // Печать данных каждой строки в таблице, если статус "accepted"
+                if (columns[4].trim().equals("accepted") && columns[5].trim().equals(deliveryPrefix)) {
+                    System.out.printf("| %-6s | %-20s | %-12s | %-12s | RM%-12s | %-20s |\n",
                             rowNum, columns[0], columns[1], columns[2], columns[3], columns[4]);
                 }
 
@@ -319,10 +317,10 @@ public class DeliveryRunner {
             if (currentTask != chosenTaskNumber) {
                 newTaskData.append(line).append("\n");
             } else {
-                // Создание новой строки с статусом "отклонен"
+                // Создание новой строки с статусом "canceled"
                 String[] columns = line.split(", ");
                 newTaskData.append(columns[0]).append(", ").append(columns[1]).append(", ").append(columns[2])
-                        .append(", ").append(columns[3]).append(", отклонен").append(", ").append(columns[4]).append("\n");
+                        .append(", ").append(columns[3]).append(", canceled").append(", ").append(columns[4]).append("\n");
             }
 
             currentTask++;
@@ -339,6 +337,9 @@ public class DeliveryRunner {
 
 
 
+
+
+/////////////////////////////////////////////////UPDATE TASK STATUS/////////////////////////////////////////////////////
     private static void updateTaskStatus(User currentUser) {
         String deliveryPrefix =currentUser.getUsername();
         try {
@@ -349,7 +350,7 @@ public class DeliveryRunner {
 
             // Печать заголовка таблицы
             System.out.println("----------------------------------------------------------------------------------------------------------");
-            System.out.printf("| %-10s | %-15s | %-6s | %-12s | %-12s | %-20s |\n", "№", "Позиция", "ID", "Дата заказа", "Цена", "Статус");
+            System.out.printf("| %-6s | %-20s | %-12s | %-12s | %-12s | %-20s |\n", "№", "Position", "CustomerID", "Order Date", "Delivery Price", "Status");
             System.out.println("----------------------------------------------------------------------------------------------------------");
 
             // Чтение и печать данных из файла CourierTasks.txt в виде таблицы
@@ -357,9 +358,9 @@ public class DeliveryRunner {
                 String line = fileScanner.nextLine();
                 String[] columns = line.split(", ");
 
-                // Печать данных каждой строки в таблице, если статус "принят" или "в процессе доставки"
-                if ((columns[4].trim().equals("принят") || columns[4].trim().equals("в процессе доставки")) && columns[5].trim().equals(deliveryPrefix)) {
-                    System.out.printf("| %-10s | %-15s | %-6s | %-12s | RM%-11s | %-20s |\n",
+                // Печать данных каждой строки в таблице, если статус "accepted" или "delivery in process"
+                if ((columns[4].trim().equals("accepted") || columns[4].trim().equals("delivery in process")) && columns[5].trim().equals(deliveryPrefix)) {
+                    System.out.printf("| %-6s | %-20s | %-12s | %-12s | RM%-12s | %-20s |\n",
                             rowNum, columns[0], columns[1], columns[2], columns[3], columns[4]);
                 }
 
@@ -399,18 +400,18 @@ public class DeliveryRunner {
                 newCourierTasksData.append(line).append("\n");
             } else {
                 String[] columns = line.split(", ");
-                if (columns[4].trim().equals("принят")) {
-                    // Обновление статуса на "в процессе доставки"
+                if (columns[4].trim().equals("accepted")) {
+                    // Обновление статуса на "delivery in process"
                     newCourierTasksData.append(columns[0]).append(", ").append(columns[1]).append(", ")
-                            .append(columns[2]).append(", ").append(columns[3]).append(", в процессе доставки")
+                            .append(columns[2]).append(", ").append(columns[3]).append(", delivery in process")
                             .append(", ").append(columns[5]).append("\n");
-                    updateStatusInTaskFile(columns[1], "в процессе доставки");
-                } else if (columns[4].trim().equals("в процессе доставки")) {
-                    // Обновление статуса на "доставлен"
+                    updateStatusInTaskFile(columns[1], "delivery in process");
+                } else if (columns[4].trim().equals("delivery in process")) {
+                    // Обновление статуса на "delivered"
                     newCourierTasksData.append(columns[0]).append(", ").append(columns[1]).append(", ")
-                            .append(columns[2]).append(", ").append(columns[3]).append(", доставлен")
+                            .append(columns[2]).append(", ").append(columns[3]).append(", delivered")
                             .append(", ").append(columns[5]).append("\n");
-                    updateStatusInTaskFile(columns[1], "доставлен");
+                    updateStatusInTaskFile(columns[1], "delivered");
                 }
             }
 
@@ -456,17 +457,19 @@ public class DeliveryRunner {
 
 
 
+
+///////////////////////////////////////////////////VIEW TASK HISTORY////////////////////////////////////////////////////
     private static void viewTaskHistory(User currentUser) {
         String deliveryPrefix =currentUser.getUsername();
         try {
             File courierTasksFile = new File(COURIER_TASKS_FILE_PATH);
             Scanner fileScanner = new Scanner(courierTasksFile);
 
-            int rowNum = 1; // Порядковый номер начинается с 1
+            int rowNum = 1;
 
             // Печать заголовка таблицы
             System.out.println("----------------------------------------------------------------------------------------------------------");
-            System.out.printf("| %-10s | %-15s | %-6s | %-12s | %-12s | %-20s |\n", "№", "Позиция", "ID", "Дата заказа", "Цена", "Статус");
+            System.out.printf("| %-6s | %-20s | %-12s | %-12s | %-12s | %-20s |\n", "№", "Position", "CustomerID", "Order Date", "Delivery Price", "Status");
             System.out.println("----------------------------------------------------------------------------------------------------------");
 
             // Чтение и печать данных из файла CourierTasks.txt в виде таблицы
@@ -474,9 +477,9 @@ public class DeliveryRunner {
                 String line = fileScanner.nextLine();
                 String[] columns = line.split(", ");
 
-                // Печать данных каждой строки в таблице, если статус "доставлен"
-                if (columns[4].trim().equals("доставлен") && columns[5].trim().equals(deliveryPrefix)) {
-                    System.out.printf("| %-10s | %-20s | %-6s | %-12s | RM%-11s | %-20s |\n",
+                // Печать данных каждой строки в таблице, если статус "delivered"
+                if (columns[4].trim().equals("delivered") && columns[5].trim().equals(deliveryPrefix)) {
+                    System.out.printf("| %-6s | %-20s | %-12s | %-12s | RM%-12s | %-20s |\n",
                             rowNum, columns[0], columns[1], columns[2], columns[3], columns[4]);
                 }
 
@@ -490,11 +493,11 @@ public class DeliveryRunner {
         }
     }
 
-    
-    
-    
+
+
+
 //////////////////////////////////////////////CUSTOMER REVIEW///////////////////////////////////////////////////////////
-    
+
     private static void readClientReview(User currentUser) {
         String deliveryPrefix = currentUser.getUsername();
         try {
@@ -511,9 +514,9 @@ public class DeliveryRunner {
                     // Печать разделителя
                     System.out.println("-----------------------------------------------------------");
                     // Печать имени клиента
-                    System.out.println("Имя клиента: " + columns[2]);
+                    System.out.println("Client's name: " + columns[2]);
                     // Печать текста отзыва
-                    System.out.println("Отзыв:");
+                    System.out.println("Feedback:");
                     String feedbackText = columns[3];
                     printAlignedFeedback(feedbackText);
                     System.out.println("-----------------------------------------------------------");
@@ -523,7 +526,7 @@ public class DeliveryRunner {
             fileScanner.close();
 
         } catch (FileNotFoundException e) {
-            System.out.println("Файл отзывов клиентов не найден.");
+            System.out.println("The customer feedback file was not found.");
         }
     }
 
@@ -545,10 +548,10 @@ public class DeliveryRunner {
         }
     }
 
-    
-    
-    
-    
+
+
+
+
 ///////////////////////////////////////////////////REVENUE DASHBOARD///////////////////////////////////////////////
 
     private static void incomeMonitoringPanel(User currentUser) {
@@ -585,18 +588,18 @@ public class DeliveryRunner {
     private static void  incomeAnalysis(User currentUser) {
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("Введите дату начала периода (MM/dd/yyyy):");
+        System.out.println("Enter the start Date (MM/dd/yyyy):");
         String startDateString = scanner.nextLine();
         Date startDate = parseDate(startDateString);
 
-        System.out.println("Введите дату конца периода (MM/dd/yyyy):");
+        System.out.println("Enter the end Date (MM/dd/yyyy):");
         String endDateString = scanner.nextLine();
         Date endDate = parseDate(endDateString);
 
         if (startDate != null && endDate != null) {
             analyzeIncomeForPeriod(startDate, endDate);
         } else {
-            System.out.println("Некорректный формат даты. Повторите ввод.");
+            System.out.println("Incorrect date format. Please try again.");
         }
     }
     private static void analyzeIncomeForPeriod(Date startDate, Date endDate) {
@@ -610,18 +613,18 @@ public class DeliveryRunner {
                 String line = fileScanner.nextLine();
                 String[] columns = line.split(", ");
 
-                String dateString = columns[2]; // дата заказа - третий столбец
+                String dateString = columns[2]; // order date - third column
                 Date orderDate = parseDate(dateString);
 
                 if (orderDate != null && isDateWithinRange(orderDate, startDate, endDate)) {
-                    double price = Double.parseDouble(columns[3]); //цена - четвертый столбец
+                    double price = Double.parseDouble(columns[3]); //price - fourth column
                     totalIncome += price;
                 }
             }
 
             fileScanner.close();
             System.out.println("----------------------------------------------------------------------------------------------------------");
-            System.out.println("Общая прибыль за выбранный период времени: RM" + totalIncome);
+            System.out.println("Your total profit for the selected time period: RM" + totalIncome);
             System.out.println("----------------------------------------------------------------------------------------------------------");
         } catch (FileNotFoundException e) {
             System.out.println("Файл задач не найден.");
@@ -633,7 +636,7 @@ public class DeliveryRunner {
             SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
             return dateFormat.parse(dateString);
         } catch (ParseException e) {
-            System.out.println("Ошибка парсинга даты: " + e.getMessage());
+            System.out.println("Date parsing error: " + e.getMessage());
         }
         return null;
     }
@@ -656,15 +659,15 @@ public class DeliveryRunner {
                 String line = fileScanner.nextLine();
                 String[] columns = line.split(", ");
 
-                if (columns.length >= 6 && columns[4].trim().equals("доставлен") && columns[5].trim().equals(deliveryPrefix)) {
-                    double deliveryPrice = Double.parseDouble(columns[3]); // Предполагаем, что цена - четвертый столбец
+                if (columns.length >= 6 && columns[4].trim().equals("delivered") && columns[5].trim().equals(deliveryPrefix)) {
+                    double deliveryPrice = Double.parseDouble(columns[3]);
                     totalProfit += deliveryPrice;
                 }
             }
 
             fileScanner.close();
             System.out.println("----------------------------------------------------------------------------------------------------------");
-            System.out.println("Общая прибыль от доставок: RM" + totalProfit);
+            System.out.println("Total profit from deliveries: RM" + totalProfit);
             System.out.println("----------------------------------------------------------------------------------------------------------");
         } catch (FileNotFoundException e) {
             System.out.println("Courier's Task file was not found.");
@@ -685,14 +688,14 @@ public class DeliveryRunner {
                 String line = fileScanner.nextLine();
                 String[] columns = line.split(", ");
 
-                if (columns.length >= 5 && columns[4].trim().equals("доставлен") && columns[5].trim().equals(deliveryPrefix)) {
+                if (columns.length >= 5 && columns[4].trim().equals("delivered") && columns[5].trim().equals(deliveryPrefix)) {
                     completedOrdersCount++;
                 }
             }
 
             fileScanner.close();
 
-            System.out.println("Количество выполненных заказов: " + completedOrdersCount);
+            System.out.println("Number of completed orders: " + completedOrdersCount);
 
 
         } catch (FileNotFoundException e) {
