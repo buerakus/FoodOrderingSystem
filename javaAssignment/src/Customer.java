@@ -18,7 +18,7 @@ public class Customer {
 
 
         while (true) {
-            System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+            System.out.println("Welcome to the Customer menu!");
             System.out.println("Choose options:");
             System.out.println("1. View menu");
             System.out.println("2. Read customer review");
@@ -30,7 +30,6 @@ public class Customer {
             System.out.println("8. Provide a review for each order");
             System.out.println("9. Reorder using order history");
             System.out.println("0. Quit");
-            System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 
             int choice = scanner.nextInt();
             scanner.nextLine();
@@ -55,7 +54,7 @@ public class Customer {
                     chkOrderHistory();
                     break;
                 case 7:
-                    System.out.println("Введите ваш ID клиента для просмотра истории транзакций: ");
+                    System.out.println("Enter your customer ID to check transaction history: ");
                     String customerId = scanner.nextLine();
                     chkTransHistory(customerId);
                     break;
@@ -70,10 +69,10 @@ public class Customer {
                     reorder(customerID);
                     break;
                 case 0:
-                    System.out.println("Программа завершена.");
+                    System.out.println("Goobye!.");
                     return;
                 default:
-                    System.out.println("Выбрано некорректное действие. Пожалуйста, выберите снова.");
+                    System.out.println("Incorret action, please try again.");
             }
         }
     }
@@ -95,18 +94,18 @@ public class Customer {
         Scanner scanner = new Scanner(System.in);
         Map<String, String[]> menu = loadMenu();
 
-        System.out.println("Введите ваш ID клиента: ");
+        System.out.println("Enter your customer ID: ");
         String customerId = scanner.nextLine();
 
         double currentBalance = getBalance(customerId);
-        System.out.println("Текущий баланс: RM" + currentBalance);
+        System.out.println("Balance: RM" + currentBalance);
         viewMenu();
 
-        System.out.println("Введите ID позиции для заказа: ");
+        System.out.println("Enter ID of selected dish: ");
         String itemId = scanner.nextLine();
 
         if (!menu.containsKey(itemId)) {
-            System.out.println("Выбранная позиция не найдена в меню.");
+            System.out.println("Chosen ID hadn`t been found.");
             return;
         }
 
@@ -116,40 +115,44 @@ public class Customer {
         double price = Double.parseDouble(itemDetails[2]);
 
         if (currentBalance < price) {
-            System.out.println("Недостаточно средств для размещения заказа.");
+            System.out.println("Not enough money to place the order.");
             return;
         }
 
-        System.out.println("Введите дату заказа (формат ГГГГ-ММ-ДД): ");
+        System.out.println("Enter date : (format MM/DD/YYYY): ");
         String orderDate = scanner.nextLine();
 
-        String orderStatus = "в ожидании принятия";
+        System.out.println("Enter pickup method : ");
+        System.out.println("Dine-In\nTake away\nDelivery");
+        String pickUpMethod = scanner.nextLine();
+
+        String orderStatus = "pending acceptance";
         String orderId = generateRandomOrderId();
 
 
-        // Concatenate order details
-        String orderDetails = orderId + ", " + vendorName + ", " + customerId + ", " + itemId + ", " + itemName + ", " + orderDate + ", RM" + price + ", " + orderStatus;
 
-        // Updating balance and recording transaction
+        String orderDetails = orderId + ", " + vendorName + ", " + customerId + ", " + itemId + ", " + itemName + ", " + orderDate + ", RM" + (price) + ", " + pickUpMethod + ", " + orderStatus;
+
+
         double newBalance = currentBalance - price;
         updateBalance(customerId, newBalance);
-        recordTransaction(customerId, -price, "Заказ размещен: " + itemName);
+        recordTransaction(customerId, -price, "Order placed: " + itemName);
 
         try {
-            // Write the concatenated order details to Task.txt and OrderHistory.txt
+
             writeToFiles(orderDetails);
-            System.out.println("Заказ успешно добавлен и записан в историю заказов: " + orderDetails);
+            System.out.println("Order has been successfully recorded to Order History: " + orderDetails);
         } catch (IOException e) {
-            System.out.println("Ошибка при записи в файлы задач или истории заказов.");
+            System.out.println("An error occurred recording order history.");
         }
     }
 
     private static String generateRandomOrderId() {
         Random random = new Random();
-        int length = random.nextInt(6) + 1; // Random length from 1 to 6
+        int length = random.nextInt(6) + 1;
         StringBuilder orderId = new StringBuilder();
         for (int i = 0; i < length; i++) {
-            orderId.append(random.nextInt(10)); // Append a random digit (0-9)
+            orderId.append(random.nextInt(10));
         }
         return orderId.toString();
     }
@@ -185,9 +188,9 @@ public class Customer {
             }
             scanner.close();
         } catch (FileNotFoundException e) {
-            System.out.println("Файл wallets.txt не найден.");
+            System.out.println("File wallets.txt not found.");
         } catch (NumberFormatException e) {
-            System.out.println("Ошибка при преобразовании баланса в число.");
+            System.out.println("Error transforming balance to number.");
         }
 
         return balance;
@@ -229,16 +232,16 @@ public class Customer {
 
             // Replace the original file with the updated file
             if (!walletsFile.delete()) {
-                System.out.println("Не удалось удалить оригинальный файл.");
+                System.out.println("Can`t delete original file.");
                 return;
             }
 
             if (!tempFile.renameTo(walletsFile)) {
-                System.out.println("Не удалось обновить файл балансов.");
+                System.out.println("An error updating wallets file.");
             }
 
         } catch (IOException e) {
-            System.out.println("Ошибка при записи транзакции: " + e.getMessage());
+            System.out.println("Error recording transaction: " + e.getMessage());
         }
     }
 
@@ -276,16 +279,16 @@ public class Customer {
 
             // Replace the original file with the updated file
             if (!walletsFile.delete()) {
-                System.out.println("Не удалось удалить оригинальный файл.");
+                System.out.println("Error updating original file.");
                 return;
             }
 
             if (!tempFile.renameTo(walletsFile)) {
-                System.out.println("Не удалось обновить файл балансов.");
+                System.out.println("Error updating balance file.");
             }
 
         } catch (IOException e) {
-            System.out.println("Ошибка при обновлении файла балансов: " + e.getMessage());
+            System.out.println("Error updating balance file: " + e.getMessage());
         }
     }
 
@@ -324,7 +327,7 @@ public class Customer {
             File tempFile = new File(taskFile.getAbsolutePath() + ".tmp");
 
             Scanner scanner = new Scanner(System.in);
-            System.out.println("Введите ID заказа для отмены: ");
+            System.out.println("Enter ID of order to cancel: ");
             String orderId = scanner.nextLine();
 
             BufferedReader reader = new BufferedReader(new FileReader(taskFile));
@@ -348,34 +351,34 @@ public class Customer {
 
 
             if (!found) {
-                System.out.println("Заказ с таким ID не найден.");
+                System.out.println("Order with this ID hasn`t been found.");
                 if (!tempFile.delete()) {
-                    System.out.println("Не удалось удалить временный файл.");
+                    System.out.println("Error deleting temporary file.");
                 }
                 return;
             }
 
             // Delete the original file and rename the temp file to the original file name
             if (!taskFile.delete()) {
-                System.out.println("Не удалось удалить оригинальный файл задач.");
+                System.out.println("Error deleting original order file.");
                 return;
             }
 
 
             if (!tempFile.renameTo(taskFile)) {
-                System.out.println("Не удалось переименовать временный файл в оригинальный файл задач.");
+                System.out.println("Error renaming temporary file to original file.");
             } else {
-                System.out.println("Заказ успешно отменен.");
+                System.out.println("Order successfully canceled.");
             }
 
         } catch (IOException ex) {
-            System.out.println("Ошибка при обработке файла: " + ex.getMessage());
+            System.out.println("Error processing file: " + ex.getMessage());
         }
     }
     //Allows user to check order status, if any
     public static void chkOrderStatus() {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Введите ID заказа для проверки статуса: ");
+        System.out.println("Enter ID of order to check status: ");
         String orderId = scanner.nextLine();
 
         try {
@@ -390,7 +393,7 @@ public class Customer {
                     String[] orderDetails = line.split(", ");
                     if (orderDetails.length >= 5) {
                         String status = orderDetails[6];
-                        System.out.println("Статус заказа: " + status);
+                        System.out.println("Order Status: " + status);
                         found = true;
                         break;
                     }
@@ -398,18 +401,18 @@ public class Customer {
             }
 
             if (!found) {
-                System.out.println("Заказ с таким ID не найден.");
+                System.out.println("Order with this ID hasn`t been found.");
             }
 
             fileScanner.close();
         } catch (FileNotFoundException e) {
-            System.out.println("Файл задач не найден.");
+            System.out.println("File not found.");
         }
     }
     //Allows user to check personal ordering history
     public static void chkOrderHistory() {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Введите ваш ID клиента для просмотра истории заказов: ");
+        System.out.println("Enter customer ID to check order history: ");
         String customerId = scanner.nextLine();
 
         try {
@@ -417,7 +420,7 @@ public class Customer {
             Scanner fileScanner = new Scanner(historyFile);
             boolean hasOrders = false;
 
-            System.out.println("История заказов для клиента с ID: " + customerId);
+            System.out.println("Order history for customer: " + customerId);
             while (fileScanner.hasNextLine()) {
                 String line = fileScanner.nextLine();
                 // Assuming the order format is: itemName, customerId, orderDate, price, status
@@ -428,15 +431,14 @@ public class Customer {
             }
 
             if (!hasOrders) {
-                System.out.println("История заказов не найдена для данного клиента.");
+                System.out.println("Order history unavailable.");
             }
 
             fileScanner.close();
         } catch (FileNotFoundException e) {
-            System.out.println("Файл истории заказов не найден.");
+            System.out.println("Order history file not found.");
         }
     }
-    private static void balance(){}
     //Allows user to check transaction history
     public static void chkTransHistory(String customerId) {
         try {
@@ -447,7 +449,7 @@ public class Customer {
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
                 if (line.startsWith(customerId + ";")) {
-                    System.out.println("История транзакций для " + customerId + ":");
+                    System.out.println("Transaction history for " + customerId + ":");
                     System.out.println(line.substring(line.indexOf(";") + 1)); // Assuming transactions are stored after a semicolon
                     found = true;
                     break;
@@ -455,19 +457,19 @@ public class Customer {
             }
 
             if (!found) {
-                System.out.println("История транзакций не найдена для данного ID клиента.");
+                System.out.println("Order history for this customer hasn`t been found.");
                 createWalletForNewCustomer();
             }
 
             scanner.close();
         } catch (FileNotFoundException e) {
-            System.out.println("Файл wallets.txt не найден.");
+            System.out.println("File wallets.txt not found.");
         }
     }
     public static void createWalletForNewCustomer() {
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("Введите ваш ID клиента для создания нового кошелька: ");
+        System.out.println("Enter your customer ID to create new wallet: ");
         String customerId = scanner.nextLine();
 
         // Call the function to create a new wallet record
@@ -480,7 +482,7 @@ public class Customer {
         try {
             // Check if the customer already exists
             if (doesCustomerExist(customerId)) {
-                System.out.println("Запись кошелька для данного ID клиента уже существует.");
+                System.out.println("Wallet record already exists for this customer.");
                 return;
             }
 
@@ -490,9 +492,9 @@ public class Customer {
             writer.write(newRecord + System.lineSeparator());
             writer.close();
 
-            System.out.println("Новая запись кошелька создана для клиента с ID: " + customerId);
+            System.out.println("New wallet record created for customer: " + customerId);
         } catch (IOException e) {
-            System.out.println("Ошибка при создании новой записи кошелька: " + e.getMessage());
+            System.out.println("Error creating wallet record: " + e.getMessage());
         }
     }
 
@@ -645,14 +647,14 @@ public class Customer {
             System.out.println("Invalid order details.");
             return;
         }
-
+        
         String newOrderId = generateRandomOrderId(); // Generate a new order ID for the repeated order
         String customerId = parts[2];
         String itemId = parts[3];
         String itemName = parts[4];
         String orderDate = parts[5]; // You might want to set this to the current date instead
         String price = parts[6];
-        String orderStatus = "в ожидании принятия"; // Setting new order status
+        String orderStatus = "pending acceptance"; // Setting new order status
 
         String newOrderDetails = newOrderId + ", " + parts[1] + ", " + customerId + ", " + itemId + ", " + itemName + ", " + orderDate + ", " + price + ", " + orderStatus;
 
