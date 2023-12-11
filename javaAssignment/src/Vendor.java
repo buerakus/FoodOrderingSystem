@@ -1,3 +1,12 @@
+package govnogovno;
+
+import java.io.*;
+import java.io.File;
+import java.util.Scanner;
+import java.util.ArrayList;
+import java.util.List;
+
+
 public class Vendor {
 
     private static final String TASK_FILE_PATH = "orders.txt";
@@ -51,7 +60,7 @@ public class Vendor {
                     readCReview(currentUser);
                     break;
                 case 8:
-                    revenueDash();
+                    revenueDash(currentUser);
                     break;
                 case 0:
                     System.out.println("Exiting..");
@@ -300,9 +309,44 @@ public class Vendor {
     }
 }
 
-    private static void revenueDash() {
-        
+   private static void revenueDash(User currentUser) {
+    String vendorPrefix = currentUser.getUsername(); // Vendor's username from currentUser object
+    double totalRevenue = 0.0;
+    boolean orderFound = false;
+
+    try {
+        File ordersFile = new File(TASK_FILE_PATHVC);
+        Scanner fileScanner = new Scanner(ordersFile);
+
+        while (fileScanner.hasNextLine()) {
+            String line = fileScanner.nextLine();
+            String[] columns = line.split(",");
+
+            // Check if the order belongs to the current vendor and has a status indicating completion
+            if (columns[1].trim().equals(vendorPrefix) && "order accepted".equals(columns[columns.length - 1].trim())) {
+                // Assuming price is at columns[6] and prefixed with 'RM'
+                double price = Double.parseDouble(columns[6].trim().substring(2));
+                totalRevenue += price;
+                orderFound = true;
+            }
+        }
+        fileScanner.close();
+
+        if (orderFound) {
+            System.out.printf("Total revenue for vendor %s: RM%.2f%n", vendorPrefix, totalRevenue);
+        } else {
+            System.out.println("No completed orders found for vendor: " + vendorPrefix);
+        }
+
+    } catch (FileNotFoundException e) {
+        System.out.println("Order file not found.");
+    } catch (IOException e) {
+        System.out.println("Error reading order file.");
+    } catch (NumberFormatException e) {
+        System.out.println("Error parsing order price.");
     }
+}
+
     
     public static void updateOrderStatus(User currentUser) {
     String vendorPrefix = currentUser.getUsername(); // Vendor's username from the currentUser object
@@ -360,3 +404,4 @@ public class Vendor {
     
     
 }
+ 
