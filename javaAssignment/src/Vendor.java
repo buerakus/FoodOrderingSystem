@@ -5,7 +5,15 @@ import java.io.File;
 import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.List;
-
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.FileWriter;
+import java.io.BufferedWriter;
+import java.util.Scanner;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Vendor {
 
@@ -214,7 +222,7 @@ public class Vendor {
         // Display all orders for the current vendor
         System.out.println("Orders for vendor: " + vendorPrefix);
         System.out.println("----------------------------------------------------------------------------------------------------------");
-        System.out.println("| Order ID | Vendor Name | Customer ID | Item ID | Item Name | Order Date | Price | Pickup Method | Status |");
+        System.out.println("| Order ID | Vendor Name | Customer ID | Item ID | Item Name | Order Date | Price | Status |");
         System.out.println("----------------------------------------------------------------------------------------------------------");
         
         while (fileScanner.hasNextLine()) {
@@ -222,9 +230,9 @@ public class Vendor {
             String[] columns = line.split(",");
             if (columns[1].trim().equals(vendorPrefix)) {
                 // Display the order
-                System.out.printf("| %-8s | %-12s | %-11s | %-7s | %-9s | %-10s | %-5s | %-13s | %-6s | \n",
+                System.out.printf("| %-8s | %-12s | %-11s | %-7s | %-9s | %-10s | %-5s | %-6s |\n",
                                   columns[0].trim(), columns[1].trim(), columns[2].trim(), columns[3].trim(), 
-                                  columns[4].trim(), columns[5].trim(), "RM" + columns[6].trim(), columns[7].trim(), columns[8].trim());
+                                  columns[4].trim(), columns[5].trim(), "RM" + columns[6].trim(), columns[8].trim());
                 orderFound = true;
             }
             orders.add(line); // Add all lines to the orders list
@@ -278,6 +286,7 @@ public class Vendor {
 }
 
 
+
    
     public static void readCReview(User currentUser) {
     String vendorPrefix = currentUser.getUsername(); // Vendor's username from currentUser object
@@ -309,43 +318,121 @@ public class Vendor {
     }
 }
 
-   private static void revenueDash(User currentUser) {
-    String vendorPrefix = currentUser.getUsername(); // Vendor's username from currentUser object
-    double totalRevenue = 0.0;
-    boolean orderFound = false;
+   private static void revenueDash (User currentUser) {
+        Scanner scanner = new Scanner(System.in);
 
-    try {
-        File ordersFile = new File(TASK_FILE_PATHVC);
-        Scanner fileScanner = new Scanner(ordersFile);
+        while (true) {
+            System.out.println("<<<<<<<<<<<<<<<<<<<<<Revenue Dashboard>>>>>>>>>>>>>>>>>>>>>");
+            System.out.println("1. Income Analysis over a period of time");
+            System.out.println("2. Calculating profits for all time");
+            System.out.println("0. Exit");
+            System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 
-        while (fileScanner.hasNextLine()) {
-            String line = fileScanner.nextLine();
-            String[] columns = line.split(",");
+            int choice = scanner.nextInt();
 
-            // Check if the order belongs to the current vendor and has a status indicating completion
-            if (columns[1].trim().equals(vendorPrefix) && "order accepted".equals(columns[columns.length - 1].trim())) {
-                // Assuming price is at columns[6] and prefixed with 'RM'
-                double price = Double.parseDouble(columns[6].trim().substring(2));
-                totalRevenue += price;
-                orderFound = true;
+            switch (choice) {
+                case 1:
+                    incomeAnalysis(currentUser);
+                    break;
+                case 2:
+                    profitCalculations(currentUser);
+                    break;
+                case 0:
+                    System.out.println("returning to the Vendor Menu...");
+                    return;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
             }
         }
-        fileScanner.close();
-
-        if (orderFound) {
-            System.out.printf("Total revenue for vendor %s: RM%.2f%n", vendorPrefix, totalRevenue);
-        } else {
-            System.out.println("No completed orders found for vendor: " + vendorPrefix);
-        }
-
-    } catch (FileNotFoundException e) {
-        System.out.println("Order file not found.");
-    } catch (IOException e) {
-        System.out.println("Error reading order file.");
-    } catch (NumberFormatException e) {
-        System.out.println("Error parsing order price.");
     }
-}
+    private static void  incomeAnalysis(User currentUser) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Enter the start Date (MM/dd/yyyy):");
+        String startDateString = scanner.nextLine();
+        Date startDate = parseDate(startDateString);
+
+        System.out.println("Enter the end Date (MM/dd/yyyy):");
+        String endDateString = scanner.nextLine();
+        Date endDate = parseDate(endDateString);
+
+        if (startDate != null && endDate != null) {
+            analyzeIncomeForPeriod(startDate, endDate);
+        } else {
+            System.out.println("Incorrect date format. Please try again.");
+        }
+    }
+    private static void analyzeIncomeForPeriod(Date startDate, Date endDate) {
+        try {
+            File ordersFile = new File(TASK_FILE_PATHVC);
+        Scanner fileScanner = new Scanner(ordersFile);
+
+            double totalIncome = 0;
+
+            while (fileScanner.hasNextLine()) {
+                String line = fileScanner.nextLine();
+                String[] columns = line.split(", ");
+
+                String dateString = columns[5]; // order date - third column
+                Date orderDate = parseDate(dateString);
+
+                if (orderDate != null && isDateWithinRange(orderDate, startDate, endDate)) {
+                    double price = Double.parseDouble(columns[6]); //price - fourth column
+                    totalIncome += price;
+                }
+            }
+
+            fileScanner.close();
+            System.out.println("----------------------------------------------------------------------------------------------------------");
+            System.out.println("Your total profit for the selected time period: RM" + totalIncome);
+            System.out.println("----------------------------------------------------------------------------------------------------------");
+        } catch (FileNotFoundException e) {
+            System.out.println("Task file not found.");
+        }
+    }
+
+    private static Date parseDate(String dateString) {
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+            return dateFormat.parse(dateString);
+        } catch (ParseException e) {
+            System.out.println("Date parsing error: " + e.getMessage());
+        }
+        return null;
+    }
+    private static boolean isDateWithinRange(Date dateToCheck, Date startDate, Date endDate) {
+        return dateToCheck.compareTo(startDate) >= 0 && dateToCheck.compareTo(endDate) <= 0;
+    }
+
+
+
+
+    private static void profitCalculations(User currentUser) {
+        String deliveryPrefix =currentUser.getUsername();
+        try {
+           File ordersFile = new File(TASK_FILE_PATHVC);
+        Scanner fileScanner = new Scanner(ordersFile);
+
+            double totalProfit = 0;
+
+            while (fileScanner.hasNextLine()) {
+                String line = fileScanner.nextLine();
+                String[] columns = line.split(", ");
+
+                if (columns.length >= 9 && columns[8].trim().equals("pending acceptance") && columns[5].trim().equals(deliveryPrefix)) {
+                    double vendorPrice = Double.parseDouble(columns[6]);
+                    totalProfit += vendorPrice;
+                }
+            }
+
+            fileScanner.close();
+            System.out.println("----------------------------------------------------------------------------------------------------------");
+            System.out.println("Total profit from deliveries: RM" + totalProfit);
+            System.out.println("----------------------------------------------------------------------------------------------------------");
+        } catch (FileNotFoundException e) {
+            System.out.println("Courier's Task file was not found.");
+        }
+    }
 
     
     public static void updateOrderStatus(User currentUser) {
